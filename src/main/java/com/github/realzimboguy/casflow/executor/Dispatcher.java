@@ -101,7 +101,7 @@ public class Dispatcher {
 
 	@Scheduled(fixedDelayString = "${jcasflow.dispatcher.keep.alive.interval.ms:60000}"  )
 	public void executorKeepAlive() {
-		logger.debug("keeping alive: {}", executorId);
+		logger.debug("keeping executor alive: {}", executorId);
 		executorsDao.keepAlive(UUID.fromString(executorId), java.time.Instant.now());
 	}
 
@@ -140,11 +140,7 @@ public class Dispatcher {
 			if (pickedUp) {
 				logger.debug("picked up workflow: {}", workflowNextExecutionEntity.getWorkflowId());
 
-				//	public WorkflowExecutor(String group, UUID workflowId, WorkflowDao workflowDao) {
-				//		this.group      = group;
-				//		this.workflowId = workflowId;
-				//		this.workflowDao = workflowDao;
-				//	}
+
 				executorManager.submit(new WorkflowExecutor(
 						jCasFlowConfig.getExecutorGroup(),
 						executorId,

@@ -30,11 +30,12 @@ public class WorkflowExecutor implements Runnable {
 	private final WorkflowInProgressDao workflowInProgressDao;
 	private final WorkflowNextExecutionDao workflowNextExecutionDao;
 	private final WorkflowRunningDao workflowRunningDao;
+	private final ExecutorState executorState;
 	private final     ApplicationContext context;
 	private final JCasFlowConfig     jCasFlowConfig;
 
 	public WorkflowExecutor(String group, String executorId, UUID workflowId, WorkflowDao workflowDao, WorkflowInProgressDao workflowInProgressDao,
-	                        WorkflowNextExecutionDao workflowNextExecutionDao, WorkflowRunningDao workflowRunningDao, ApplicationContext context,
+	                        WorkflowNextExecutionDao workflowNextExecutionDao, WorkflowRunningDao workflowRunningDao,ApplicationContext context,
 	                        JCasFlowConfig jCasFlowConfig) {
 		this.group      = group;
 		this.executorId = executorId;
@@ -43,6 +44,7 @@ public class WorkflowExecutor implements Runnable {
 		this.workflowInProgressDao = workflowInProgressDao;
 		this.workflowNextExecutionDao = workflowNextExecutionDao;
 		this.workflowRunningDao = workflowRunningDao;
+		this.executorState = new ExecutorState(workflowDao, workflowId);
 		this.context = context;
 		this.jCasFlowConfig = jCasFlowConfig;
 	}
@@ -167,10 +169,10 @@ public class WorkflowExecutor implements Runnable {
 		}
 
 
-		method = workflow.getClass().getMethod(methodCall);
+		method = workflow.getClass().getMethod(methodCall, ExecutorState.class);
 		logger.info("Method: " + method);
 
-		Action action = (Action) method.invoke(workflow);
+		Action action = (Action) method.invoke(workflow,executorState);
 		logger.info("Invoked method: " + method);
 		logger.info("Action: " + action);
 

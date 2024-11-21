@@ -1,6 +1,7 @@
 package com.github.realzimboguy.casflow.workflow;
 
 import com.github.realzimboguy.casflow.executor.Action;
+import com.github.realzimboguy.casflow.executor.ExecutorState;
 import com.github.realzimboguy.casflow.executor.WorkflowState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,21 +64,24 @@ public class DemoWorkflow extends JCasWorkFlow {
 		}
 	}
 
-	public Action getVersion() {
+	public Action getVersion(ExecutorState executorState) {
 		logger.info("Getting version in workflow called");
+
+		executorState.setVar("version", "1.0.0");
 
 		return Action.nextState(DemoWorkflowStates.process);
 	}
-	public Action process() {
+	public Action process(ExecutorState executorState) {
 		logger.info("Processing in workflow called");
 		return Action.nextState(DemoWorkflowStates.process2);
 	}
-	public Action process2() {
+	public Action process2(ExecutorState executorState) {
 		logger.info("Processing2 in workflow called");
-		return Action.nextState(DemoWorkflowStates.process3, Duration.ofSeconds(5));
+		return Action.nextState(DemoWorkflowStates.process3, Duration.ofSeconds(50));
 	}
-	public Action process3() {
+	public Action process3(ExecutorState executorState) {
 		logger.info("Processing3 in workflow called");
+		logger.info("Version: " + executorState.getVar("version"));
 		return Action.nextState(DemoWorkflowStates.done);
 	}
 }
