@@ -1,0 +1,31 @@
+%%{init: {'theme':'forest'}}%%
+sequenceDiagram
+    box executor group
+    Participant Dispatcher
+    Participant Executor
+    end
+    Participant db-workflows
+    Participant db-workflow_next_execution
+    Participant db-workflow_in_progress
+    Dispatcher->>db-workflow_next_execution: get pending
+    db-workflow_next_execution-->>Dispatcher: -
+    Dispatcher->>db-workflow_running: -
+    note over db-workflow_running: this can be run many times
+    db-workflow_running-->Dispatcher: -
+    Dispatcher->>db-workflow_next_execution: LWT Delete
+    note over db-workflow_next_execution: only one gets this run
+    db-workflow_next_execution-->>Dispatcher: -
+    note over Dispatcher: if dispatcher crashes here, maintainer can find and fix
+    Dispatcher->>Executor: start workflow
+    Executor->>db-workflow_in_progress: write
+    db-workflow_in_progress-->>Executor: -
+    Executor->>Executor: run tasks
+    Executor->>db-workflow_in_progress: delete
+    db-workflow_in_progress-->>Executor: -
+    Executor->>db-workflow_running: delete
+    db-workflow_running-->>Executor: -
+    alt maintainer
+    Dispatcher->>db-workflow_running:find stuck tasks older than time
+    db-workflow_running-->>Dispatcher: -
+    end
+

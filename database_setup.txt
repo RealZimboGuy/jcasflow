@@ -1,0 +1,37 @@
+CREATE KEYSPACE casflow
+    WITH replication = {
+        'class': 'SimpleStrategy',
+        'replication_factor': 3
+        };
+
+
+
+create table workflow
+(
+    id              uuid,
+    status          varchar,
+    retries         int,
+    created         timestamp,
+    modified        timestamp,
+    next_activation timestamp,
+    started         timestamp,
+    executor_id     varchar,
+    workflow_type   varchar,
+    external_id     varchar,
+    business_key    varchar,
+    state           varchar,
+    column_name     int,
+    PRIMARY KEY ( id)
+);
+
+CREATE TABLE workflow_actions (
+                                  workflow_id UUID,
+                                  id UUID,
+                                  type varchar,
+                                  name varchar,
+                                  text varchar,
+                                  retry_number int,
+                                  started_at TIMESTAMP,
+                                  ended_at TIMESTAMP,
+                                  PRIMARY KEY ((workflow_id), id)
+);

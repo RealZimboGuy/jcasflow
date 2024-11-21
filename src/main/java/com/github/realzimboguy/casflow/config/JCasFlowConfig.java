@@ -1,0 +1,83 @@
+package com.github.realzimboguy.casflow.config;
+
+import com.datastax.oss.driver.api.core.ConsistencyLevel;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class JCasFlowConfig {
+
+	@Value("${jcasflow.database.keyspace:casflow}")
+	private String databaseKeyspace;
+	@Value("${jcasflow.database.replicas:1}")
+	private int databaseReplicas;
+	@Value("${jcasflow.database.dc.name:datacenter1}")
+	private String databaseDcName;
+	@Value("${jcasflow.database.consistencyLevel:ONE}")
+	private ConsistencyLevel consistencyLevel;
+	//this should always be a quorum based consistency level
+	@Value("${jcasflow.database.dispatcher.consistencyLevel:ONE}")
+	private ConsistencyLevel dispatcherConsistencyLevel;
+	@Value("${jcasflow.database.bucket.size:1}")
+	private int databaseBucketSize;
+
+
+	@Value("${jcasflow.dispatcher.fetch.size:50}")
+	private int dispatcherFetchSize;
+	@Value("${jcasflow.executor.group:jcasflow}")
+	private String executorGroup;
+	@Value("${jcasflow.executor.max.execution.count:1000}")
+	private int    executorMaxExecutionCount;
+	@Value("${jcasflow.executor.thread.pool.size:10}")
+	private int    executorThreadPoolSize;
+
+	public ConsistencyLevel getConsistencyLevel() {
+		return consistencyLevel;
+	}
+
+	public ConsistencyLevel getDispatcherConsistencyLevel() {
+
+		return dispatcherConsistencyLevel;
+	}
+
+	public String getDatabaseKeyspace() {
+
+		return databaseKeyspace;
+	}
+
+	public int getDatabaseReplicas() {
+
+		return databaseReplicas;
+	}
+
+	public String getDatabaseDcName() {
+
+		return databaseDcName;
+	}
+
+	public int getDatabaseBucketSize() {
+
+		return databaseBucketSize;
+	}
+
+
+	public String getExecutorGroup() {
+
+		return executorGroup;
+	}
+
+	public int getDispatcherFetchSize() {
+
+		return dispatcherFetchSize;
+	}
+
+	public int getExecutorThreadPoolSize() {
+
+		return executorThreadPoolSize;
+	}
+
+	public int getExecutorMaxExecutionCount() {
+
+		return executorMaxExecutionCount;
+	}
+}
