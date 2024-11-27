@@ -19,8 +19,14 @@ sequenceDiagram
     Dispatcher->>Executor: start workflow
     Executor->>db-workflow_in_progress: write
     db-workflow_in_progress-->>Executor: -
-    Executor->>Executor: run tasks
-    Executor->>db-workflow_in_progress: delete
+    alt run
+     Executor->>db-workflows: set IN_PROGRESS
+     Executor->>Executor: run workflow methods
+     Executor->>db-workflows: update workflow variables
+     Executor->>Executor: run workflow methods
+     Executor->>db-workflow_in_progress: delete
+    end
+
     db-workflow_in_progress-->>Executor: -
     Executor->>db-workflow_running: delete
     db-workflow_running-->>Executor: -

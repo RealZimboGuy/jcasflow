@@ -90,10 +90,11 @@ public class WorkflowExecutor implements Runnable {
 				|| action.getWorkflowState().stateType()==WorkflowState.WorkflowStateType.ERROR
 				){
 
-					logger.debug("delete workflow running, next state is {} : {}", action.getWorkflowState().method(), workflowId);
-					workflowRunningDao.delete(workflowId, group);
 					logger.info("Remove in progress record: " + workflowId);
 					workflowInProgressDao.delete(inProgressEntity);
+
+					logger.debug("delete workflow running, next state is {} : {}", action.getWorkflowState().method(), workflowId);
+					workflowRunningDao.delete(workflowId, group);
 					return;
 				}
 

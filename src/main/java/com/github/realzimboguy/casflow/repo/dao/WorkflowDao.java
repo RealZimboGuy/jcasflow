@@ -125,6 +125,22 @@ public class WorkflowDao {
 		return workflowEntity;
 	}
 
+	public void updateStateVars(UUID id, String json) {
+
+		SimpleStatement statement = new SimpleStatementBuilder(
+				"UPDATE "+jCasFlowConfig.getDatabaseKeyspace()+".workflow SET state_vars = ? WHERE bucket = ? and id = ?")
+				.addPositionalValues(
+						json,
+						DaoUtil.getBucket(id, jCasFlowConfig.getDatabaseBucketSize()),
+						id
+				)
+				.setConsistencyLevel(consistencyLevel)
+				.build();
+
+		CassandraConnectionPool.getSession().execute(statement);
+
+	}
+
 	public void updateStatus(UUID workflowId, WorkflowStatus workflowStatus,int executionCount) {
 
 		SimpleStatement statement = new SimpleStatementBuilder(

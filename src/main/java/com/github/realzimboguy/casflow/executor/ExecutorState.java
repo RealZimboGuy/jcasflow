@@ -32,6 +32,15 @@ public class ExecutorState {
 		return vars.get(varName);
 
 	}
+
+	public <T> T getVar(String varName, Class<T> clazz) {
+		Object var = getVar(varName);
+		if (var == null) {
+			return null;
+		}
+		return gson.fromJson(gson.toJson(var), clazz);
+	}
+
 	public void setVar(String varName, Object varValue) {
 		WorkflowEntity workflowEntity = workflowDao.get(workflowId);
 
@@ -43,7 +52,7 @@ public class ExecutorState {
 			vars.put(varName, varValue);
 		}
 		workflowEntity.setStateVars(gson.toJson(vars));
-		workflowDao.save(workflowEntity);
+		workflowDao.updateStateVars(workflowEntity.getId(), gson.toJson(vars));
 	}
 
 }

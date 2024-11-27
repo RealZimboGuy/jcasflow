@@ -11,6 +11,7 @@ import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -18,6 +19,7 @@ import java.util.UUID;
 public class WorkflowRunningDao {
 
 	ConsistencyLevel consistencyLevel;
+	ConsistencyLevel dispatcherConsistencyLevel;
 
 	private final JCasFlowConfig jCasFlowConfig;
 
@@ -26,11 +28,58 @@ public class WorkflowRunningDao {
 		this.jCasFlowConfig = jCasFlowConfig;
 	}
 
+
 	@PostConstruct
 	public void setup() {
 		consistencyLevel = jCasFlowConfig.getConsistencyLevel();
+		dispatcherConsistencyLevel = jCasFlowConfig.getDispatcherConsistencyLevel();
 	}
 
+
+
+	/**
+	 * this is different than delete() as it requires the entity to exist before deleting, it is used to acquire a lock on the record
+	 * @param workflowRunningEntity
+	 * @return
+	 */
+	public boolean deleteIfExists(WorkflowRunningEntity workflowRunningEntity) {
+
+		SimpleStatement statement = new SimpleStatementBuilder(
+				"DELETE FROM "+jCasFlowConfig.getDatabaseKeyspace()+".workflow_running WHERE workflow_id = ? AND  group = ? IF EXISTS")
+				.addPositionalValues(
+						workflowRunningEntity.getWorkflowId(),
+						workflowRunningEntity.getGroup()
+				)
+				.setConsistencyLevel(dispatcherConsistencyLevel)
+				.build();
+
+		ResultSet rs = CassandraConnectionPool.getSession().execute(statement);
+		return rs.wasApplied();
+
+	}
+
+	public List<WorkflowRunningEntity> getStuckWorkflows(String executorGroup,int executorRepairStuckWorkflowsMaxSeconds) {
+
+		SimpleStatement statement = new SimpleStatementBuilder(
+				"SELECT * FROM "+jCasFlowConfig.getDatabaseKeyspace()+".workflow_running WHERE  group = ? AND  started_at < ? ALLOW FILTERING")
+				.addPositionalValues(
+						executorGroup,
+						java.time.Instant.now().minusSeconds(executorRepairStuckWorkflowsMaxSeconds)
+				)
+				.setConsistencyLevel(consistencyLevel)
+				.build();
+
+		ResultSet rs = CassandraConnectionPool.getSession().execute(statement);
+		return rs.map(row -> {
+			WorkflowRunningEntity workflowRunningEntity = new WorkflowRunningEntity();
+			workflowRunningEntity.setGroup(row.getString("group"));
+			workflowRunningEntity.setWorkflowId(row.getUuid("workflow_id"));
+			workflowRunningEntity.setStartedAt(row.getInstant("started_at"));
+			return workflowRunningEntity;
+		}).all();
+
+
+	}
 
 
 	public WorkflowRunningEntity save(WorkflowRunningEntity workflowRunningEntity) {

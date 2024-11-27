@@ -30,6 +30,8 @@ public class JCasFlowConfig {
 	private int    executorMaxExecutionCount;
 	@Value("${jcasflow.executor.thread.pool.size:10}")
 	private int    executorThreadPoolSize;
+	@Value("${jcasflow.executor.repair.stuck.workflows.max.seconds:300}")
+	private int    executorRepairStuckWorkflowsMaxSeconds;
 
 	public ConsistencyLevel getConsistencyLevel() {
 		return consistencyLevel;
@@ -79,5 +81,10 @@ public class JCasFlowConfig {
 	public int getExecutorMaxExecutionCount() {
 
 		return executorMaxExecutionCount;
+	}
+
+	public int getExecutorRepairStuckWorkflowsMaxSeconds() {
+
+		return executorRepairStuckWorkflowsMaxSeconds;
 	}
 }

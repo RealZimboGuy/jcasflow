@@ -73,15 +73,51 @@ public class DemoWorkflow extends JCasWorkFlow {
 	}
 	public Action process(ExecutorState executorState) {
 		logger.info("Processing in workflow called");
+
+		MyObject myObject = new MyObject();
+		myObject.setName("John");
+		myObject.setAge(30);
+
+		executorState.setVar("version", "1.0.0");
+		executorState.setVar("myObject", myObject);
 		return Action.nextState(DemoWorkflowStates.process2);
 	}
 	public Action process2(ExecutorState executorState) {
 		logger.info("Processing2 in workflow called");
-		return Action.nextState(DemoWorkflowStates.process3, Duration.ofSeconds(50));
+		return Action.nextState(DemoWorkflowStates.process3, Duration.ofSeconds(10));
 	}
 	public Action process3(ExecutorState executorState) {
 		logger.info("Processing3 in workflow called");
-		logger.info("Version: " + executorState.getVar("version"));
+		logger.info("Version: " + executorState.getVar("version",String.class));
+
+		MyObject myObject =  executorState.getVar("myObject", MyObject.class);
+		logger.info("MyObject: " + myObject.getName() + " " + myObject.getAge());
+
 		return Action.nextState(DemoWorkflowStates.done);
+	}
+
+	private class MyObject {
+		private String name;
+		private int age;
+
+		public String getName() {
+
+			return name;
+		}
+
+		public void setName(String name) {
+
+			this.name = name;
+		}
+
+		public int getAge() {
+
+			return age;
+		}
+
+		public void setAge(int age) {
+
+			this.age = age;
+		}
 	}
 }

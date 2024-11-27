@@ -2,6 +2,7 @@ package com.github.realzimboguy.casflow.repo;
 
 import com.datastax.oss.driver.api.core.type.DataTypes;
 import com.datastax.oss.driver.api.querybuilder.SchemaBuilder;
+import com.datastax.oss.driver.api.querybuilder.schema.CreateIndex;
 import com.datastax.oss.driver.api.querybuilder.schema.CreateKeyspace;
 import com.datastax.oss.driver.api.querybuilder.schema.CreateTable;
 import com.github.realzimboguy.casflow.config.JCasFlowConfig;
@@ -77,7 +78,6 @@ public class DatabaseSetup {
 				.withPartitionKey("group", DataTypes.TEXT)
 				.withClusteringColumn("next_execution", DataTypes.TIMESTAMP)
 				.withClusteringColumn("workflow_id", DataTypes.UUID);
-
 		CassandraConnectionPool.getSession().execute(createWorkflowsUnassignedTable.build());
 
 		CreateTable createWorkflowsRunningTable = SchemaBuilder.createTable(JCasFlowConfig.getDatabaseKeyspace(), "workflow_running")
@@ -85,9 +85,14 @@ public class DatabaseSetup {
 				.withPartitionKey("group", DataTypes.TEXT)
 				.withClusteringColumn("workflow_id", DataTypes.UUID)
 				.withColumn("started_at", DataTypes.TIMESTAMP);
-
-
 		CassandraConnectionPool.getSession().execute(createWorkflowsRunningTable.build());
+
+		CreateIndex createIndex = SchemaBuilder.createIndex("workflow_running_started_at_index")
+				.ifNotExists()
+				.onTable(JCasFlowConfig.getDatabaseKeyspace(), "workflow_running")
+				.andColumn("started_at");
+		CassandraConnectionPool.getSession().execute(createIndex.build());
+
 
 		CreateTable createWorkflowsInProgressTable = SchemaBuilder.createTable(JCasFlowConfig.getDatabaseKeyspace(), "workflow_in_progress")
 				.ifNotExists()
@@ -95,7 +100,9 @@ public class DatabaseSetup {
 				.withClusteringColumn("workflow_id", DataTypes.UUID)
 				.withColumn ("started_at", DataTypes.TIMESTAMP);
 
+
 		CassandraConnectionPool.getSession().execute(createWorkflowsInProgressTable.build());
+
 
 
 		// Create executors table

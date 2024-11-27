@@ -68,27 +68,27 @@ public class Dispatcher {
 		logger.info("Dispatching...");
 
 		//4137557f-5de1-4a5a-b05a-7df1fa3078e6
-
-		WorkflowEntity workflowEntity = new WorkflowEntity();
-		workflowEntity.setId(java.util.UUID.randomUUID());
-		workflowEntity.setStatus(WorkflowStatus.NEW);
-		workflowEntity.setExecutionCount(0);
-		workflowEntity.setExecutorGroup(jCasFlowConfig.getExecutorGroup());
-		workflowEntity.setCreated(java.time.ZonedDateTime.now().toInstant());
-		workflowEntity.setModified(java.time.ZonedDateTime.now().toInstant());
-		workflowEntity.setStarted(java.time.ZonedDateTime.now().toInstant());
-		workflowEntity.setWorkflowType("demoWorkflow");
-		workflowEntity.setExternalId("external_id");
-		workflowEntity.setBusinessKey("business");
-
-		workflowDao.save(workflowEntity);
-
-		WorkflowNextExecutionEntity wf = new WorkflowNextExecutionEntity();
-		wf.setGroup(jCasFlowConfig.getExecutorGroup());
-		wf.setNextExecution(java.time.ZonedDateTime.now().plusSeconds(5).toInstant());
-		wf.setWorkflowId(workflowEntity.getId());
-
-		workflowNextExecutionDao.save(wf);
+//
+//		WorkflowEntity workflowEntity = new WorkflowEntity();
+//		workflowEntity.setId(java.util.UUID.randomUUID());
+//		workflowEntity.setStatus(WorkflowStatus.NEW);
+//		workflowEntity.setExecutionCount(0);
+//		workflowEntity.setExecutorGroup(jCasFlowConfig.getExecutorGroup());
+//		workflowEntity.setCreated(java.time.ZonedDateTime.now().toInstant());
+//		workflowEntity.setModified(java.time.ZonedDateTime.now().toInstant());
+//		workflowEntity.setStarted(java.time.ZonedDateTime.now().toInstant());
+//		workflowEntity.setWorkflowType("demoWorkflow");
+//		workflowEntity.setExternalId("external_id");
+//		workflowEntity.setBusinessKey("business");
+//
+//		workflowDao.save(workflowEntity);
+//
+//		WorkflowNextExecutionEntity wf = new WorkflowNextExecutionEntity();
+//		wf.setGroup(jCasFlowConfig.getExecutorGroup());
+//		wf.setNextExecution(java.time.ZonedDateTime.now().plusSeconds(5).toInstant());
+//		wf.setWorkflowId(workflowEntity.getId());
+//
+//		workflowNextExecutionDao.save(wf);
 
 
 
