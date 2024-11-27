@@ -10,6 +10,7 @@ public class WorkflowEntity {
 	private UUID           id;
 	private WorkflowStatus status;
 	private int            executionCount;
+	private int            retryCount;
 	private Instant        created;
 	private Instant          modified;
 	private Instant nextActivation;
@@ -163,6 +164,16 @@ public class WorkflowEntity {
 		this.executorGroup = executorGroup;
 	}
 
+	public int getRetryCount() {
+
+		return retryCount;
+	}
+
+	public void setRetryCount(int retryCount) {
+
+		this.retryCount = retryCount;
+	}
+
 	@Override
 	public String toString() {
 
@@ -170,6 +181,7 @@ public class WorkflowEntity {
 				"id=" + id +
 				", status=" + status +
 				", executionCount=" + executionCount +
+				", retryCount=" + retryCount +
 				", created=" + created +
 				", modified=" + modified +
 				", nextActivation=" + nextActivation +

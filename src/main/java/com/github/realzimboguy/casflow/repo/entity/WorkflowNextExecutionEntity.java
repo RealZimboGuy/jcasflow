@@ -13,6 +13,16 @@ public class WorkflowNextExecutionEntity {
 	private Instant nextExecution;
 	private UUID    workflowId;
 
+	public WorkflowNextExecutionEntity() {
+
+	}
+
+	public WorkflowNextExecutionEntity(String group, Instant nextExecution, UUID workflowId) {
+
+		this.group = group;
+		this.nextExecution = nextExecution;
+		this.workflowId = workflowId;
+	}
 
 	public String getGroup() {
 

@@ -54,13 +54,14 @@ public class WorkflowDao {
 
 			SimpleStatement statement = new SimpleStatementBuilder(
 					"INSERT INTO "+jCasFlowConfig.getDatabaseKeyspace()+".workflow " +
-							"(bucket, id, status, execution_count, created, modified, next_activation, started, executor_id,executor_group, workflow_type, external_id, business_key, state, state_vars) " +
-							"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+							"(bucket, id, status, execution_count,retry_count, created, modified, next_activation, started, executor_id,executor_group, workflow_type, external_id, business_key, state, state_vars) " +
+							"VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
 					.addPositionalValues(
 							DaoUtil.getBucket(workflowEntity.getId(), jCasFlowConfig.getDatabaseBucketSize()),
 							workflowEntity.getId(),
 							workflowEntity.getStatus().name(),
 							workflowEntity.getExecutionCount(),
+							workflowEntity.getRetryCount(),
 							workflowEntity.getCreated(),
 							workflowEntity.getModified(),
 							workflowEntity.getNextActivation(),
@@ -109,6 +110,7 @@ public class WorkflowDao {
 				workflowEntity.setId(row.getUuid("id"));
 				workflowEntity.setStatus(WorkflowStatus.valueOf(row.getString("status")));
 				workflowEntity.setExecutionCount(row.getInt("execution_count"));
+				workflowEntity.setRetryCount(row.getInt("retry_count"));
 				workflowEntity.setCreated(row.get("created", Instant.class));
 				workflowEntity.setModified(row.get("modified", Instant.class));
 				workflowEntity.setNextActivation(row.get("next_activation", Instant.class));
@@ -141,13 +143,14 @@ public class WorkflowDao {
 
 	}
 
-	public void updateStatus(UUID workflowId, WorkflowStatus workflowStatus,int executionCount) {
+	public void updateStatus(UUID workflowId, WorkflowStatus workflowStatus,int executionCount,int retryCount) {
 
 		SimpleStatement statement = new SimpleStatementBuilder(
-				"UPDATE "+jCasFlowConfig.getDatabaseKeyspace()+".workflow SET status = ?, execution_count = ? WHERE bucket = ? and id = ?")
+				"UPDATE "+jCasFlowConfig.getDatabaseKeyspace()+".workflow SET status = ?, execution_count = ?, retry_count = ? WHERE bucket = ? and id = ?")
 				.addPositionalValues(
 						workflowStatus.name(),
 						executionCount,
+						retryCount,
 						DaoUtil.getBucket(workflowId, jCasFlowConfig.getDatabaseBucketSize()),
 						workflowId
 				)
@@ -157,13 +160,14 @@ public class WorkflowDao {
 		CassandraConnectionPool.getSession().execute(statement);
 
 	}
-	public void updateStatus(UUID workflowId, WorkflowStatus workflowStatus,int executionCount, String executorId) {
+	public void updateStatus(UUID workflowId, WorkflowStatus workflowStatus,int executionCount, int retryCount,String executorId) {
 
 		SimpleStatement statement = new SimpleStatementBuilder(
-				"UPDATE "+jCasFlowConfig.getDatabaseKeyspace()+".workflow SET status = ?, execution_count = ?, executor_id = ? WHERE bucket = ? and id = ?")
+				"UPDATE "+jCasFlowConfig.getDatabaseKeyspace()+".workflow SET status = ?, execution_count = ?, retry_count = ?, executor_id = ? WHERE bucket = ? and id = ?")
 				.addPositionalValues(
 						workflowStatus.name(),
 						executionCount,
+						retryCount,
 						executorId,
 						DaoUtil.getBucket(workflowId, jCasFlowConfig.getDatabaseBucketSize()),
 						workflowId

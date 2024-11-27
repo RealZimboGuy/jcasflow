@@ -38,6 +38,7 @@ public class DatabaseSetup {
 				.withClusteringColumn("id", DataTypes.UUID)
 				.withColumn("status", DataTypes.TEXT)
 				.withColumn("execution_count", DataTypes.INT)
+				.withColumn("retry_count", DataTypes.INT)
 				.withColumn("created", DataTypes.TIMESTAMP)
 				.withColumn("modified", DataTypes.TIMESTAMP)
 				.withColumn("next_activation", DataTypes.TIMESTAMP)

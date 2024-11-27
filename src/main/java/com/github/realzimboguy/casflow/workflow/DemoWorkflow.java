@@ -2,6 +2,7 @@ package com.github.realzimboguy.casflow.workflow;
 
 import com.github.realzimboguy.casflow.executor.Action;
 import com.github.realzimboguy.casflow.executor.ExecutorState;
+import com.github.realzimboguy.casflow.executor.WorkflowRetry;
 import com.github.realzimboguy.casflow.executor.WorkflowState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,11 @@ public class DemoWorkflow extends JCasWorkFlow {
 	public WorkflowState errorState() {
 
 		return DemoWorkflowStates.error;
+	}
+
+	@Override
+	public WorkflowRetry retry() {
+		return new WorkflowRetry(20,Duration.ofSeconds(60), Duration.ofMinutes(5));
 	}
 
 	private enum DemoWorkflowStates implements WorkflowState {
@@ -84,6 +90,15 @@ public class DemoWorkflow extends JCasWorkFlow {
 	}
 	public Action process2(ExecutorState executorState) {
 		logger.info("Processing2 in workflow called");
+		String testException = executorState.getVar("testException", String.class);
+		if (testException == null) {
+			executorState.setVar("testException", "true");
+			throw new RuntimeException("Test exception");
+		}else {
+			logger.info("No exception");
+
+		}
+
 		return Action.nextState(DemoWorkflowStates.process3, Duration.ofSeconds(10));
 	}
 	public Action process3(ExecutorState executorState) {
