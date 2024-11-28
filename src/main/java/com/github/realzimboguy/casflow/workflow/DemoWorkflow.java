@@ -35,7 +35,7 @@ public class DemoWorkflow extends JCasWorkFlow {
 
 	@Override
 	public WorkflowRetry retry() {
-		return new WorkflowRetry(20,Duration.ofSeconds(60), Duration.ofMinutes(5));
+		return new WorkflowRetry(20,Duration.ofSeconds(15), Duration.ofMinutes(2));
 	}
 
 	private enum DemoWorkflowStates implements WorkflowState {
@@ -74,6 +74,7 @@ public class DemoWorkflow extends JCasWorkFlow {
 		logger.info("Getting version in workflow called");
 
 		executorState.setVar("version", "1.0.0");
+		executorState.setVar("exceptionCounter", 1);
 
 		return Action.nextState(DemoWorkflowStates.process);
 	}
@@ -89,11 +90,11 @@ public class DemoWorkflow extends JCasWorkFlow {
 		return Action.nextState(DemoWorkflowStates.process2);
 	}
 	public Action process2(ExecutorState executorState) {
-		logger.info("Processing2 in workflow called");
-		String testException = executorState.getVar("testException", String.class);
-		if (testException == null) {
-			executorState.setVar("testException", "true");
-			throw new RuntimeException("Test exception");
+		int exceptionCounter = executorState.getVar("exceptionCounter", Integer.class);
+		logger.info("Processing2 in workflow called: " + exceptionCounter);
+		if (exceptionCounter < 5) {
+			executorState.setVar("exceptionCounter", exceptionCounter + 1);
+			throw new RuntimeException("Test exception: + " + exceptionCounter);
 		}else {
 			logger.info("No exception");
 
