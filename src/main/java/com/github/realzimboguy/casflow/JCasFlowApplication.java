@@ -1,18 +1,16 @@
 package com.github.realzimboguy.casflow;
 
-import com.github.realzimboguy.casflow.workflow.DemoWorkflow;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-public class CasFlowApplication {
+public class JCasFlowApplication {
 
 	public static void main(String[] args) {
 
-		SpringApplication.run(CasFlowApplication.class, args);
+		SpringApplication.run(JCasFlowApplication.class, args);
 	}
 
 

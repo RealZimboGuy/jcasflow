@@ -1,19 +1,15 @@
 package com.github.realzimboguy.casflow.executor;
 
 import com.github.realzimboguy.casflow.config.JCasFlowConfig;
-import com.github.realzimboguy.casflow.repo.dao.WorkflowDao;
-import com.github.realzimboguy.casflow.repo.dao.WorkflowInProgressDao;
-import com.github.realzimboguy.casflow.repo.dao.WorkflowNextExecutionDao;
-import com.github.realzimboguy.casflow.repo.dao.WorkflowRunningDao;
-import com.github.realzimboguy.casflow.repo.entity.WorkflowEntity;
-import com.github.realzimboguy.casflow.repo.entity.WorkflowInProgressEntity;
-import com.github.realzimboguy.casflow.repo.entity.WorkflowNextExecutionEntity;
-import com.github.realzimboguy.casflow.repo.entity.WorkflowRunningEntity;
+import com.github.realzimboguy.casflow.repo.dao.*;
+import com.github.realzimboguy.casflow.repo.entity.*;
 import com.github.realzimboguy.casflow.workflow.JCasWorkFlow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.ZonedDateTime;
@@ -30,12 +26,13 @@ public class WorkflowExecutor implements Runnable {
 	private final WorkflowInProgressDao workflowInProgressDao;
 	private final WorkflowNextExecutionDao workflowNextExecutionDao;
 	private final WorkflowRunningDao workflowRunningDao;
+	private final WorkflowActionDao workflowActionDao;
 	private final ExecutorState executorState;
 	private final     ApplicationContext context;
 	private final JCasFlowConfig     jCasFlowConfig;
 
 	public WorkflowExecutor(String group, String executorId, UUID workflowId, WorkflowDao workflowDao, WorkflowInProgressDao workflowInProgressDao,
-	                        WorkflowNextExecutionDao workflowNextExecutionDao, WorkflowRunningDao workflowRunningDao,ApplicationContext context,
+	                        WorkflowNextExecutionDao workflowNextExecutionDao, WorkflowRunningDao workflowRunningDao, WorkflowActionDao workflowActionDao, ApplicationContext context,
 	                        JCasFlowConfig jCasFlowConfig) {
 		this.group      = group;
 		this.executorId = executorId;
@@ -44,7 +41,8 @@ public class WorkflowExecutor implements Runnable {
 		this.workflowInProgressDao = workflowInProgressDao;
 		this.workflowNextExecutionDao = workflowNextExecutionDao;
 		this.workflowRunningDao = workflowRunningDao;
-		this.executorState = new ExecutorState(workflowDao, workflowId);
+		this.workflowActionDao = workflowActionDao;
+		this.executorState = new ExecutorState(workflowDao, workflowActionDao, workflowId);
 		this.context = context;
 		this.jCasFlowConfig = jCasFlowConfig;
 	}
@@ -55,16 +53,27 @@ public class WorkflowExecutor implements Runnable {
 		try {
 			logger.info("Executor starting workflow: " + workflowId);
 
-			WorkflowInProgressEntity inProgressEntity = new WorkflowInProgressEntity();
-			inProgressEntity.setGroup(group);
-			inProgressEntity.setWorkflowId(workflowId);
-			inProgressEntity.setStartedAt(java.time.Instant.now());
+			WorkflowInProgressEntity inProgressEntity =
+					new WorkflowInProgressEntity(group,workflowId,java.time.Instant.now());
 
 			workflowInProgressDao.save(inProgressEntity);
 			logger.info("Workflow in progress: " + workflowId);
 
+
 			WorkflowEntity workflowEntity = workflowDao.get(workflowId);
 			logger.info("Workflow entity: " + workflowEntity);
+
+
+			workflowActionDao.save( new WorkflowActionEntity(
+					workflowId,
+					UUID.randomUUID(),
+					workflowEntity.getExecutionCount(),
+					workflowEntity.getRetryCount(),
+					WorkflowActionType.SYSTEM,
+					"Start",
+					"Start",
+					java.time.Instant.now()
+			));
 
 
 			JCasWorkFlow workflow = (JCasWorkFlow) context.getBean(workflowEntity.getWorkflowType());
@@ -95,6 +104,18 @@ public class WorkflowExecutor implements Runnable {
 
 					logger.debug("delete workflow running, next state is {} : {}", action.getWorkflowState().method(), workflowId);
 					workflowRunningDao.delete(workflowId, group);
+
+					workflowActionDao.save( new WorkflowActionEntity(
+							workflowId,
+							UUID.randomUUID(),
+							workflowEntity.getExecutionCount(),
+							workflowEntity.getRetryCount(),
+							WorkflowActionType.SYSTEM,
+							"Finish",
+							"Finish",
+							java.time.Instant.now()
+					));
+
 					return;
 				}
 
@@ -122,6 +143,18 @@ public class WorkflowExecutor implements Runnable {
 
 				logger.info("Workflow next execution added: " + workflowId);
 
+				workflowActionDao.save( new WorkflowActionEntity(
+						workflowId,
+						UUID.randomUUID(),
+						workflowEntity.getExecutionCount(),
+						workflowEntity.getRetryCount(),
+						WorkflowActionType.SYSTEM,
+						"Scheduled",
+						"Scheduling workflow: " + workflowId + " for execution at: " + executeAt,
+						java.time.Instant.now()
+				));
+
+
 			} catch (NoSuchMethodException e) {
 				throw new RuntimeException(e);
 			} catch (IllegalAccessException e) {
@@ -130,9 +163,34 @@ public class WorkflowExecutor implements Runnable {
 				workflowEntity = workflowDao.get(workflowId);
 				if (workflowEntity.getRetryCount()> workflow.retry().getMaxFails()){
 					logger.error("Exception in workflow, max retries hit: " + workflowId, e);
+
+					workflowActionDao.save( new WorkflowActionEntity(
+							workflowId,
+							UUID.randomUUID(),
+							workflowEntity.getExecutionCount(),
+							workflowEntity.getRetryCount(),
+							WorkflowActionType.ERROR,
+							"Error",
+							e.getMessage(),
+							java.time.Instant.now()
+					));
+
 					workflowDao.updateStatus(workflowId, WorkflowStatus.FAILED,workflowEntity.getExecutionCount()+1,workflowEntity.getRetryCount() + 1);
 				}else {
 					logger.warn("Exception in workflow, retrying: " + workflowId, e.getCause());
+
+					workflowActionDao.save( new WorkflowActionEntity(
+							workflowId,
+							UUID.randomUUID(),
+							workflowEntity.getExecutionCount(),
+							workflowEntity.getRetryCount(),
+							WorkflowActionType.SYSTEM,
+							"Error",
+							throwableToString(e.getCause()),
+							java.time.Instant.now()
+					));
+
+
 					workflowDao.updateStatus(workflowId, WorkflowStatus.IN_PROGRESS,workflowEntity.getExecutionCount()+1,workflowEntity.getRetryCount() + 1);
 					// work out how long to wait based on the retry count and the min/max intervals
 					long difference = workflow.retry().getMaxInterval().toSeconds() - workflow.retry().getMinInterval().toSeconds();
@@ -141,6 +199,19 @@ public class WorkflowExecutor implements Runnable {
 					ZonedDateTime executeAt = ZonedDateTime.now().plusSeconds(nextExecutionInSeconds);
 
 					logger.info("Scheduling workflow retry : " + workflowId + " execution in seconds:"+ nextExecutionInSeconds+" for execution at: " + executeAt + " retry count: " + workflowEntity.getRetryCount());
+
+
+					workflowActionDao.save( new WorkflowActionEntity(
+							workflowId,
+							UUID.randomUUID(),
+							workflowEntity.getExecutionCount(),
+							workflowEntity.getRetryCount(),
+							WorkflowActionType.SYSTEM,
+							"Error",
+							"Scheduling workflow retry : " + workflowId + " execution in seconds:"+ nextExecutionInSeconds+" for execution at: " + executeAt + " retry count: " + workflowEntity.getRetryCount(),
+							java.time.Instant.now()
+					));
+
 					workflowNextExecutionDao.save(
 							new WorkflowNextExecutionEntity(
 									jCasFlowConfig.getExecutorGroup(),
@@ -194,6 +265,17 @@ public class WorkflowExecutor implements Runnable {
 		method = workflow.getClass().getMethod(methodCall, ExecutorState.class);
 		logger.info("Method: " + method);
 
+		workflowActionDao.save( new WorkflowActionEntity(
+				workflowId,
+				UUID.randomUUID(),
+				workflowEntity.getExecutionCount(),
+				workflowEntity.getRetryCount(),
+				WorkflowActionType.SYSTEM,
+				"Execute",
+				"Run state: " + methodCall,
+				java.time.Instant.now()
+		));
+
 		Action action = (Action) method.invoke(workflow,executorState);
 		logger.info("Invoked method: " + method);
 		logger.info("Action: " + action);
@@ -205,6 +287,18 @@ public class WorkflowExecutor implements Runnable {
 			workflowDao.updateStatus(workflowId, WorkflowStatus.FAILED,workflowEntity.getExecutionCount()+1,workflowEntity.getRetryCount());
 			workflowDao.setState(workflowId, action.getWorkflowState().method());
 			logger.info("Workflow status updated to ERROR: " + workflowId);
+
+			workflowActionDao.save( new WorkflowActionEntity(
+					workflowId,
+					UUID.randomUUID(),
+					workflowEntity.getExecutionCount(),
+					workflowEntity.getRetryCount(),
+					WorkflowActionType.ERROR,
+					"Error",
+					"Run state: " + methodCall,
+					java.time.Instant.now()
+			));
+
 			return action;
 		}
 		if (
@@ -231,4 +325,10 @@ public class WorkflowExecutor implements Runnable {
 
 	}
 
+	public static String throwableToString(Throwable throwable) {
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(stringWriter);
+		throwable.printStackTrace(printWriter);
+		return stringWriter.toString();
+	}
 }

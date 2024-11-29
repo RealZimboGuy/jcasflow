@@ -9,6 +9,16 @@ public class WorkflowInProgressEntity {
 	private UUID    workflowId;
 	private Instant startedAt;
 
+	public WorkflowInProgressEntity() {
+
+	}
+
+	public WorkflowInProgressEntity(String group, UUID workflowId, Instant startedAt) {
+
+		this.group = group;
+		this.workflowId = workflowId;
+		this.startedAt = startedAt;
+	}
 
 	public String getGroup() {
 

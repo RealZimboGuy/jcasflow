@@ -43,7 +43,7 @@ public class DemoWorkflow extends JCasWorkFlow {
 		process(WorkflowStateType.NORMAL, "process", "do some processing"),
 		process2(WorkflowStateType.NORMAL, "process2", "do some processing"),
 		process3(WorkflowStateType.NORMAL, "process3", "do some processing"),
-		error(WorkflowStateType.ERROR, "error","this gets the version"),
+		error(WorkflowStateType.ERROR, "error","an error has occurred"),
 		done(WorkflowStateType.END, "done","done");
 
 		String            method;

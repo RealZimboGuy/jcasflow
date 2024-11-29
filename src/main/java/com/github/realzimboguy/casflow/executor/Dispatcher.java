@@ -14,6 +14,7 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -21,15 +22,16 @@ import java.util.UUID;
 @DependsOn("databaseSetup")
 public class Dispatcher {
 
-	 Logger logger = LoggerFactory.getLogger(Dispatcher.class);
+	private final WorkflowActionDao workflowActionDao;
+	Logger logger = LoggerFactory.getLogger(Dispatcher.class);
 
 	private final WorkflowDao workflowDao;
 	private final WorkflowNextExecutionDao workflowNextExecutionDao;
 	private final WorkflowRunningDao workflowRunningDao;
 	private final JCasFlowConfig jCasFlowConfig;
 	private final ExecutorManager       executorManager;
-	private final     WorkflowInProgressDao workflowInProgressDao;
-	private final ExecutorsDao executorsDao;
+	private final WorkflowInProgressDao workflowInProgressDao;
+	private final ExecutorDao           executorDao;
 	private final ApplicationContext    context;
 
 	private String executorId;
@@ -37,7 +39,7 @@ public class Dispatcher {
 
 	public Dispatcher(WorkflowDao workflowDao, WorkflowNextExecutionDao workflowNextExecutionDao,
 	                  WorkflowRunningDao workflowRunningDao,
-	                  JCasFlowConfig jCasFlowConfig, ExecutorManager executorManager, WorkflowInProgressDao workflowInProgressDao, ExecutorsDao executorsDao, ApplicationContext context) {
+	                  JCasFlowConfig jCasFlowConfig, ExecutorManager executorManager, WorkflowInProgressDao workflowInProgressDao, ExecutorDao executorDao, ApplicationContext context, WorkflowActionDao workflowActionDao) {
 
 		this.workflowDao = workflowDao;
 		this.workflowNextExecutionDao = workflowNextExecutionDao;
@@ -45,8 +47,9 @@ public class Dispatcher {
 		this.jCasFlowConfig = jCasFlowConfig;
 		this.executorManager = executorManager;
 		this.workflowInProgressDao = workflowInProgressDao;
-		this.executorsDao = executorsDao;
+		this.executorDao = executorDao;
 		this.context = context;
+		this.workflowActionDao = workflowActionDao;
 	}
 
 	@PostConstruct
@@ -59,7 +62,7 @@ public class Dispatcher {
 		executorEntity.setStartedAt(java.time.Instant.now());
 		executorEntity.setLastAlive(java.time.Instant.now());
 		logger.debug("saving executor: {}", executorEntity);
-		executorsDao.save(executorEntity);
+		executorDao.save(executorEntity);
 
 	}
 
@@ -69,26 +72,37 @@ public class Dispatcher {
 
 		//4137557f-5de1-4a5a-b05a-7df1fa3078e6
 
-		WorkflowEntity workflowEntity = new WorkflowEntity();
-		workflowEntity.setId(java.util.UUID.randomUUID());
-		workflowEntity.setStatus(WorkflowStatus.NEW);
-		workflowEntity.setExecutionCount(0);
-		workflowEntity.setExecutorGroup(jCasFlowConfig.getExecutorGroup());
-		workflowEntity.setCreated(java.time.ZonedDateTime.now().toInstant());
-		workflowEntity.setModified(java.time.ZonedDateTime.now().toInstant());
-		workflowEntity.setStarted(java.time.ZonedDateTime.now().toInstant());
-		workflowEntity.setWorkflowType("demoWorkflow");
-		workflowEntity.setExternalId("external_id");
-		workflowEntity.setBusinessKey("business");
+		WorkflowBuilder.builder()
+		        .withId(java.util.UUID.randomUUID())
+				.withExecutorGroup(jCasFlowConfig.getExecutorGroup())
+				.withWorkflowType("demoWorkflow")
+				.withExternalId("external_id")
+				.withBusinessKey("business")
+				.withStateVar("var_name","value")
+				.withNextExecution(java.time.ZonedDateTime.now().plusSeconds(5).toInstant())
+				.build()
+				.save(workflowDao, workflowNextExecutionDao);
 
-		workflowDao.save(workflowEntity);
-
-		WorkflowNextExecutionEntity wf = new WorkflowNextExecutionEntity();
-		wf.setGroup(jCasFlowConfig.getExecutorGroup());
-		wf.setNextExecution(java.time.ZonedDateTime.now().plusSeconds(5).toInstant());
-		wf.setWorkflowId(workflowEntity.getId());
-
-		workflowNextExecutionDao.save(wf);
+//		WorkflowEntity workflowEntity = new WorkflowEntity();
+//		workflowEntity.setId(java.util.UUID.randomUUID());
+//		workflowEntity.setStatus(WorkflowStatus.NEW);
+//		workflowEntity.setExecutionCount(0);
+//		workflowEntity.setExecutorGroup(jCasFlowConfig.getExecutorGroup());
+//		workflowEntity.setCreated(java.time.ZonedDateTime.now().toInstant());
+//		workflowEntity.setModified(java.time.ZonedDateTime.now().toInstant());
+//		workflowEntity.setStarted(java.time.ZonedDateTime.now().toInstant());
+//		workflowEntity.setWorkflowType("demoWorkflow");
+//		workflowEntity.setExternalId("external_id");
+//		workflowEntity.setBusinessKey("business");
+//
+//		workflowDao.save(workflowEntity);
+//
+//		WorkflowNextExecutionEntity wf = new WorkflowNextExecutionEntity();
+//		wf.setGroup(jCasFlowConfig.getExecutorGroup());
+//		wf.setNextExecution(java.time.ZonedDateTime.now().plusSeconds(5).toInstant());
+//		wf.setWorkflowId(workflowEntity.getId());
+//
+//		workflowNextExecutionDao.save(wf);
 
 
 
@@ -102,7 +116,7 @@ public class Dispatcher {
 	@Scheduled(fixedDelayString = "${jcasflow.dispatcher.keep.alive.interval.ms:60000}"  )
 	public void executorKeepAlive() {
 		logger.debug("keeping executor alive: {}", executorId);
-		executorsDao.keepAlive(UUID.fromString(executorId), java.time.Instant.now());
+		executorDao.keepAlive(UUID.fromString(executorId), java.time.Instant.now());
 	}
 
 	@Scheduled(fixedDelayString = "${jcasflow.dispatcher.fetch.interval.ms:1000}"  )
@@ -149,6 +163,7 @@ public class Dispatcher {
 						workflowInProgressDao,
 						workflowNextExecutionDao,
 						workflowRunningDao,
+						workflowActionDao,
 						context,
 						jCasFlowConfig));
 

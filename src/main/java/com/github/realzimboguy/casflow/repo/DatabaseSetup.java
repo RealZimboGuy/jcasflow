@@ -58,12 +58,12 @@ public class DatabaseSetup {
 				.withPartitionKey("bucket", DataTypes.TEXT)
 				.withPartitionKey("workflow_id", DataTypes.UUID)
 				.withClusteringColumn("id", DataTypes.UUID)
+				.withColumn("execution_count", DataTypes.INT)
+				.withColumn("retry_count", DataTypes.INT)
 				.withColumn("type", DataTypes.TEXT)
 				.withColumn("name", DataTypes.TEXT)
 				.withColumn("text", DataTypes.TEXT)
-				.withColumn("retry_number", DataTypes.INT)
-				.withColumn("started_at", DataTypes.TIMESTAMP)
-				.withColumn("ended_at", DataTypes.TIMESTAMP);
+				.withColumn("date_time", DataTypes.TIMESTAMP);
 
 		CassandraConnectionPool.getSession().execute(createWorkflowActionsTable.build());
 

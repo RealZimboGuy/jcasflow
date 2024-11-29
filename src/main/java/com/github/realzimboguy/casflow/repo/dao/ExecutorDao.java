@@ -7,7 +7,6 @@ import com.datastax.oss.driver.api.core.cql.SimpleStatementBuilder;
 import com.github.realzimboguy.casflow.config.JCasFlowConfig;
 import com.github.realzimboguy.casflow.repo.CassandraConnectionPool;
 import com.github.realzimboguy.casflow.repo.entity.ExecutorEntity;
-import com.github.realzimboguy.casflow.repo.entity.WorkflowInProgressEntity;
 import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
@@ -17,13 +16,13 @@ import java.util.UUID;
 
 @Service
 @DependsOn("databaseSetup")
-public class ExecutorsDao {
+public class ExecutorDao {
 
 	ConsistencyLevel consistencyLevel;
 
 	private final JCasFlowConfig jCasFlowConfig;
 
-	public ExecutorsDao(JCasFlowConfig jCasFlowConfig) {
+	public ExecutorDao(JCasFlowConfig jCasFlowConfig) {
 
 		this.jCasFlowConfig = jCasFlowConfig;
 	}

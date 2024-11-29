@@ -1,6 +1,8 @@
 package com.github.realzimboguy.casflow.executor;
 
+import com.github.realzimboguy.casflow.repo.dao.WorkflowActionDao;
 import com.github.realzimboguy.casflow.repo.dao.WorkflowDao;
+import com.github.realzimboguy.casflow.repo.entity.WorkflowActionEntity;
 import com.github.realzimboguy.casflow.repo.entity.WorkflowEntity;
 import com.google.gson.Gson;
 import org.springframework.stereotype.Service;
@@ -12,15 +14,30 @@ import java.util.UUID;
 public class ExecutorState {
 
 	private final WorkflowDao workflowDao;
+	private final WorkflowActionDao workflowActionDao;
 	private final UUID workflowId;
 	private Gson gson = new Gson();
 
-	public ExecutorState(WorkflowDao workflowDao, UUID workflowId) {
+	public ExecutorState(WorkflowDao workflowDao, WorkflowActionDao workflowActionDao, UUID workflowId) {
 
 		this.workflowDao = workflowDao;
+		this.workflowActionDao = workflowActionDao;
 		this.workflowId = workflowId;
 	}
 
+	public void recordAction(WorkflowActionType actionType,String name, String text) {
+		WorkflowEntity workflowEntity = workflowDao.get(workflowId);
+		workflowActionDao.save( new WorkflowActionEntity(
+				workflowId,
+				UUID.randomUUID(),
+				workflowEntity.getExecutionCount(),
+				workflowEntity.getRetryCount(),
+				actionType,
+				name,
+				text,
+				java.time.Instant.now()
+		));
+	}
 
 	public Object getVar(String varName) {
 		WorkflowEntity workflowEntity = workflowDao.get(workflowId);
