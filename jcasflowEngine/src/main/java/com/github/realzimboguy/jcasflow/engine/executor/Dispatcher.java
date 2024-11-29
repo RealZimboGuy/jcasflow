@@ -53,6 +53,12 @@ public class Dispatcher {
 
 	@PostConstruct
 	public void startup() {
+
+		if (!jCasFlowConfig.isExecutorEnabled()) {
+		return;
+		}
+
+		logger.info("Dispatcher starting");
 		this.executorId = UUID.randomUUID().toString();
 		//insert the executor id into the database
 		ExecutorEntity executorEntity = new ExecutorEntity();
@@ -65,52 +71,21 @@ public class Dispatcher {
 
 	}
 
-	@PostConstruct
-	public void dispatch() {
-		logger.info("Dispatching...");
-
-		//4137557f-5de1-4a5a-b05a-7df1fa3078e6
-
-
-//		WorkflowEntity workflowEntity = new WorkflowEntity();
-//		workflowEntity.setId(java.util.UUID.randomUUID());
-//		workflowEntity.setStatus(WorkflowStatus.NEW);
-//		workflowEntity.setExecutionCount(0);
-//		workflowEntity.setExecutorGroup(jCasFlowConfig.getExecutorGroup());
-//		workflowEntity.setCreated(java.time.ZonedDateTime.now().toInstant());
-//		workflowEntity.setModified(java.time.ZonedDateTime.now().toInstant());
-//		workflowEntity.setStarted(java.time.ZonedDateTime.now().toInstant());
-//		workflowEntity.setWorkflowType("demoWorkflow");
-//		workflowEntity.setExternalId("external_id");
-//		workflowEntity.setBusinessKey("business");
-//
-//		workflowDao.save(workflowEntity);
-//
-//		WorkflowNextExecutionEntity wf = new WorkflowNextExecutionEntity();
-//		wf.setGroup(jCasFlowConfig.getExecutorGroup());
-//		wf.setNextExecution(java.time.ZonedDateTime.now().plusSeconds(5).toInstant());
-//		wf.setWorkflowId(workflowEntity.getId());
-//
-//		workflowNextExecutionDao.save(wf);
-
-
-
-
-//		for (int i = 0; i < 1000; i++) {
-//			extracted();
-//		}
-
-	}
 
 	@Scheduled(fixedDelayString = "${jcasflow.dispatcher.keep.alive.interval.ms:60000}"  )
 	public void executorKeepAlive() {
+		if (!jCasFlowConfig.isExecutorEnabled()) {
+			return;
+		}
 		logger.debug("keeping executor alive: {}", executorId);
 		executorDao.keepAlive(UUID.fromString(executorId), java.time.Instant.now());
 	}
 
 	@Scheduled(fixedDelayString = "${jcasflow.dispatcher.fetch.interval.ms:1000}"  )
 	public void getWorkflowsForExecution() {
-
+		if (!jCasFlowConfig.isExecutorEnabled()) {
+			return;
+		}
 		// get workflows for execution
 		List<WorkflowNextExecutionEntity> toExecute =
 				workflowNextExecutionDao.getWorkflowsForExecution(jCasFlowConfig.getExecutorGroup(),
@@ -166,25 +141,5 @@ public class Dispatcher {
 
 	}
 
-	private void extracted() {
-
-		WorkflowEntity wf = new WorkflowEntity();
-		wf.setId(java.util.UUID.randomUUID());
-		wf.setExecutionCount(0);
-		wf.setCreated(java.time.ZonedDateTime.now().toInstant());
-		wf.setModified(java.time.ZonedDateTime.now().toInstant());
-		wf.setNextActivation(java.time.ZonedDateTime.now().toInstant());
-		wf.setStarted(java.time.ZonedDateTime.now().toInstant());
-		wf.setExecutorId("executor_id");
-		wf.setWorkflowType("workflow_type");
-		wf.setExternalId("external_id");
-		wf.setBusinessKey("business_key");
-		wf.setState("state");
-		wf.setStateVars("state_vars");
-
-		wf = workflowDao.save(wf);
-
-		System.out.println("result after saving :" + wf);
-	}
 
 }

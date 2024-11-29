@@ -28,6 +28,8 @@ public class JCasFlowConfig {
 
 	@Value("${jcasflow.dispatcher.fetch.size:50}")
 	private int dispatcherFetchSize;
+	@Value("${jcasflow.executor.enabled:true}")
+	private boolean executorEnabled;
 	@Value("${jcasflow.executor.group:jcasflow}")
 	private String executorGroup;
 	@Value("${jcasflow.executor.max.execution.count:1000}")
@@ -100,5 +102,10 @@ public class JCasFlowConfig {
 	public int getDatabasePort() {
 
 		return databasePort;
+	}
+
+	public boolean isExecutorEnabled() {
+
+		return executorEnabled;
 	}
 }
