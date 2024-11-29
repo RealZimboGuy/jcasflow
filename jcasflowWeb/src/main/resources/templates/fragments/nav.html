@@ -1,0 +1,20 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<body>
+
+<nav class="flex-grow"th:fragment="nav" >
+    <a href="/" class="block px-6 py-3 hover:bg-gray-700"
+       th:classappend="${requestURI == '/'} ? 'bg-gray-700'"
+    >Dashboard</a>
+    <a href="/Executors" class="block px-6 py-3 hover:bg-gray-700"
+       th:classappend="${requestURI == '/executors'} ? 'bg-gray-700'"
+    >Executors</a>
+    <a href="/settings" class="block px-6 py-3 hover:bg-gray-700"
+       th:classappend="${requestURI == '/settings'} ? 'bg-gray-700'"
+    >Settings</a>
+</nav>
+
+</body>
+
+</html>

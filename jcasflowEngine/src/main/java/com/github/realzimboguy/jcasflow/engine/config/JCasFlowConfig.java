@@ -3,10 +3,15 @@ package com.github.realzimboguy.jcasflow.engine.config;
 import com.datastax.oss.driver.api.core.ConsistencyLevel;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
 @Configuration
+@PropertySource("classpath:jcasflowengine.properties")
+@PropertySource("classpath:application.properties")
 public class JCasFlowConfig {
 
+	@Value("${app.version}")
+	private String appVersion;
 	@Value("${jcasflow.database.keyspace:casflow}")
 	private String databaseKeyspace;
 	@Value("${jcasflow.database.ip:localhost}")
@@ -24,8 +29,6 @@ public class JCasFlowConfig {
 	private ConsistencyLevel dispatcherConsistencyLevel;
 	@Value("${jcasflow.database.bucket.size:1}")
 	private int databaseBucketSize;
-
-
 	@Value("${jcasflow.dispatcher.fetch.size:50}")
 	private int dispatcherFetchSize;
 	@Value("${jcasflow.executor.enabled:true}")
@@ -107,5 +110,10 @@ public class JCasFlowConfig {
 	public boolean isExecutorEnabled() {
 
 		return executorEnabled;
+	}
+
+	public String getAppVersion() {
+
+		return appVersion;
 	}
 }

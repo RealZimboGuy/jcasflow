@@ -1,4 +1,4 @@
-package com.github.realzimboguy.jcasflow.web.executor;
+package com.github.realzimboguy.jcasflow.web.executors;
 
 import org.springframework.stereotype.Controller;
 

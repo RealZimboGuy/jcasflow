@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+
+    <th:block th:include="fragments/header.html :: header"></th:block>
+
+</head>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal">
+<div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-gray-800 text-gray-200 flex flex-col">
+        <div class="p-6 text-center font-bold text-lg">JCASFLOW</div>
+
+        <nav class="flex-grow" th:include="fragments/nav.html :: nav"></nav>
+
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex flex-col flex-grow">
+        <!-- Top Bar -->
+        <header class="bg-white shadow-md py-4 px-6 flex  justify-start">
+            <h1 class="text-xl font-semibold text-gray-800" th:text="${title}"></h1>
+
+        </header>
+
+        <main class="p-6 flex-grow">
+            <section class="bg-white rounded shadow-md p-6">
+                <table class="min-w-full bg-white border border-gray-200">
+                    <thead class="bg-gray-100 border-b border-gray-200">
+                    <tr>
+                        <th class="text-left px-4 py-2 text-gray-600 font-medium">Key</th>
+                        <th class="text-left px-4 py-2 text-gray-600 font-medium">Value</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="setting : ${settings}" class="border-b">
+                        <td class="px-4 py-2 text-gray-800" th:text="${setting.settingKey}"></td>
+                        <td class="px-4 py-2 text-gray-800" th:text="${setting.settingValue}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+</div>
+</body>
+</html>
