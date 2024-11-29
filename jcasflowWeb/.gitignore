@@ -31,13 +31,3 @@ build/
 
 ### VS Code ###
 .vscode/
-
-.DS_Store
-
-jcasflowEngine/mvnw
-
-jcasflowEngine/mvnw.cmd
-
-jcasflowWeb/mvnw
-
-jcasflowWeb/mvnw.cmd
