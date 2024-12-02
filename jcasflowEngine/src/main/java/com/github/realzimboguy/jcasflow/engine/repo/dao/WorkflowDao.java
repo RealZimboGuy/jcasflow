@@ -101,9 +101,11 @@ public class WorkflowDao {
 
 	private WorkflowEntity fromResultSet(ResultSet rs) {
 
-		if (rs == null) {
+		if (rs == null || !rs.iterator().hasNext()) {
+			// Return null if the ResultSet is null or has no rows
 			return null;
 		}
+
 		WorkflowEntity workflowEntity = new WorkflowEntity();
 		rs.forEach(row -> {
 			if (row != null) {

@@ -132,7 +132,7 @@ public class Dispatcher {
 						jCasFlowConfig));
 
 			} else {
-				logger.debug("failed to pick up workflow: {}", workflowNextExecutionEntity.getWorkflowId());
+				logger.info("failed to pick up workflow another executor must have got it: {}", workflowNextExecutionEntity.getWorkflowId());
 			}
 
 

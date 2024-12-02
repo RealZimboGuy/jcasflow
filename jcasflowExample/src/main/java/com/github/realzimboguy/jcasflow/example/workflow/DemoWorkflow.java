@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class DemoWorkflow extends JCasWorkFlow {
@@ -21,15 +23,26 @@ public class DemoWorkflow extends JCasWorkFlow {
 
 	@Override
 	public WorkflowState startingState() {
-
 		return DemoWorkflowStates.getVersion;
 	}
 
 	@Override
 	public WorkflowState errorState() {
-
 		return DemoWorkflowStates.error;
 	}
+
+	@Override
+	public List<WorkflowAllowedTransition> permittedTransitions() {
+
+		return List.of(
+			new WorkflowAllowedTransition(DemoWorkflowStates.getVersion, DemoWorkflowStates.process),
+			new WorkflowAllowedTransition(DemoWorkflowStates.process, DemoWorkflowStates.process2),
+			new WorkflowAllowedTransition(DemoWorkflowStates.process, DemoWorkflowStates.process3),
+			new WorkflowAllowedTransition(DemoWorkflowStates.process2, DemoWorkflowStates.process3),
+			new WorkflowAllowedTransition(DemoWorkflowStates.process3, DemoWorkflowStates.done)
+		);
+	}
+
 
 	@Override
 	public WorkflowRetry retry() {
@@ -66,6 +79,14 @@ public class DemoWorkflow extends JCasWorkFlow {
 
 			return method;
 		}
+		@Override
+		public String description() {
+
+			return description;
+		}
+
+
+
 	}
 
 	public Action getVersion(ExecutorState executorState) {

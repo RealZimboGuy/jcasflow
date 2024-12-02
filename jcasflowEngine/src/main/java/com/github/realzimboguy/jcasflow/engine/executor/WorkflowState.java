@@ -9,6 +9,8 @@ public interface WorkflowState {
 
 	String name();
 
+	String description();
+
 	public enum WorkflowStateType{
 		START,
 		NORMAL,

@@ -101,9 +101,16 @@ public class DatabaseSetup {
 				.withClusteringColumn("workflow_id", DataTypes.UUID)
 				.withColumn ("started_at", DataTypes.TIMESTAMP);
 
-
 		CassandraConnectionPool.getSession().execute(createWorkflowsInProgressTable.build());
 
+		CreateTable createWorkflowDefinitionsTable = SchemaBuilder.createTable(JCasFlowConfig.getDatabaseKeyspace(), "workflow_definitions")
+				.ifNotExists()
+				.withPartitionKey("name", DataTypes.TEXT)
+				.withColumn ("created", DataTypes.TIMESTAMP)
+				.withColumn ("updated", DataTypes.TIMESTAMP)
+				.withColumn ("flow_chart", DataTypes.TEXT);
+
+		CassandraConnectionPool.getSession().execute(createWorkflowDefinitionsTable.build());
 
 
 		// Create executors table
