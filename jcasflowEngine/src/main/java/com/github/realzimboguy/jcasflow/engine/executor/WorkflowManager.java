@@ -132,6 +132,7 @@ public class WorkflowManager {
 				logger.info("Saving workflow definition: {}",jCasWorkFlow.getName());
 				workflowDefinitionEntity = new WorkflowDefinitionEntity();
 				workflowDefinitionEntity.setName(jCasWorkFlow.getName());
+				workflowDefinitionEntity.setDescription(jCasWorkFlow.getDescription());
 				workflowDefinitionEntity.setFlowChart(sb.toString());
 				workflowDefinitionEntity.setUpdated(java.time.Instant.now());
 				workflowDefinitionEntity.setCreated(java.time.Instant.now());
@@ -140,6 +141,7 @@ public class WorkflowManager {
 			} else {
 				logger.info("Updating workflow definition: {}",jCasWorkFlow.getName());
 				workflowDefinitionEntity.setFlowChart(sb.toString());
+				workflowDefinitionEntity.setDescription(jCasWorkFlow.getDescription());
 				workflowDefinitionEntity.setUpdated(java.time.Instant.now());
 				workflowDefinitionDao.save(workflowDefinitionEntity);
 			}

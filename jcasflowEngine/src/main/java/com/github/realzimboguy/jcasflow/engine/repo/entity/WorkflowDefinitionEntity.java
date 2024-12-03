@@ -6,6 +6,7 @@ import java.util.UUID;
 public class WorkflowDefinitionEntity {
 
 	private String  name;
+	private String  description;
 	private Instant created;
 	private Instant updated;
 	private String  flowChart;
@@ -48,5 +49,15 @@ public class WorkflowDefinitionEntity {
 	public void setCreated(Instant created) {
 
 		this.created = created;
+	}
+
+	public String getDescription() {
+
+		return description;
+	}
+
+	public void setDescription(String description) {
+
+		this.description = description;
 	}
 }

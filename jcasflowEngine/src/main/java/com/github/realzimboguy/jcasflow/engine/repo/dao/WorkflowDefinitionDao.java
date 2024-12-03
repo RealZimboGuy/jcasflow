@@ -44,10 +44,11 @@ public class WorkflowDefinitionDao {
 
 		SimpleStatement statement = new SimpleStatementBuilder(
 				"INSERT INTO "+jCasFlowConfig.getDatabaseKeyspace()+".workflow_definitions " +
-						"(name, created, updated, flow_chart) " +
-						"VALUES (?,?,?,?)")
+						"(name,description, created, updated, flow_chart) " +
+						"VALUES (?,?,?,?,?)")
 				.addPositionalValues(
 						workflowDefinitionEntity.getName(),
+						workflowDefinitionEntity.getDescription(),
 						workflowDefinitionEntity.getCreated(),
 						workflowDefinitionEntity.getUpdated(),
 						workflowDefinitionEntity.getFlowChart()
@@ -98,6 +99,7 @@ public class WorkflowDefinitionDao {
 		rs.forEach(row -> {
 			if (row != null) {
 				workflowDefinitionEntity.setName(row.getString("name"));
+				workflowDefinitionEntity.setDescription(row.getString("description"));
 				workflowDefinitionEntity.setCreated(row.getInstant("created"));
 				workflowDefinitionEntity.setUpdated(row.getInstant("updated"));
 				workflowDefinitionEntity.setFlowChart(row.getString("flow_chart"));
@@ -118,6 +120,7 @@ public class WorkflowDefinitionDao {
 			if (row != null) {
 				WorkflowDefinitionEntity workflowDefinitionEntity = new WorkflowDefinitionEntity();
 				workflowDefinitionEntity.setName(row.getString("name"));
+				workflowDefinitionEntity.setDescription(row.getString("description"));
 				workflowDefinitionEntity.setCreated(row.getInstant("created"));
 				workflowDefinitionEntity.setUpdated(row.getInstant("updated"));
 				workflowDefinitionEntity.setFlowChart(row.getString("flow_chart"));

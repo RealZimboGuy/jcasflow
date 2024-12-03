@@ -3,14 +3,12 @@ package com.github.realzimboguy.jcasflow.web.definition;
 import com.github.realzimboguy.jcasflow.engine.repo.dao.WorkflowDefinitionDao;
 import com.github.realzimboguy.jcasflow.engine.repo.entity.WorkflowDefinitionEntity;
 import com.github.realzimboguy.jcasflow.web.definition.model.WorkflowDefinitionModel;
-import com.github.realzimboguy.jcasflow.web.settings.SettingsService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -57,7 +55,7 @@ public class DefinitionController {
 	}
 
 	@GetMapping("definitions/{name}")
-	public String definitionById(Model model, HttpServletRequest request, @PathVariable String name) {
+	public String definitionByName(Model model, HttpServletRequest request, @PathVariable String name) {
 
 		WorkflowDefinitionEntity workflowDefinitionEntity = workflowDefinitionDao.get(name);
 

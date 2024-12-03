@@ -22,6 +22,12 @@ public class DemoWorkflow extends JCasWorkFlow {
 	}
 
 	@Override
+	public String getDescription() {
+
+		return "This is a generic block of text<br/> The demo workflow has some states and it goes between them in a sequence";
+	}
+
+	@Override
 	public WorkflowState startingState() {
 		return DemoWorkflowStates.getVersion;
 	}

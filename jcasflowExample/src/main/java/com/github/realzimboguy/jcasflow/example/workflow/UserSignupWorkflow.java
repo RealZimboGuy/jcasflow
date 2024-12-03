@@ -21,6 +21,12 @@ public class UserSignupWorkflow extends JCasWorkFlow {
 	}
 
 	@Override
+	public String getDescription() {
+
+		return "";
+	}
+
+	@Override
 	public WorkflowState startingState() {
 		return DemoWorkflowStates.getVersion;
 	}

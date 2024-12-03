@@ -106,6 +106,7 @@ public class DatabaseSetup {
 		CreateTable createWorkflowDefinitionsTable = SchemaBuilder.createTable(JCasFlowConfig.getDatabaseKeyspace(), "workflow_definitions")
 				.ifNotExists()
 				.withPartitionKey("name", DataTypes.TEXT)
+				.withColumn("description", DataTypes.TEXT)
 				.withColumn ("created", DataTypes.TIMESTAMP)
 				.withColumn ("updated", DataTypes.TIMESTAMP)
 				.withColumn ("flow_chart", DataTypes.TEXT);

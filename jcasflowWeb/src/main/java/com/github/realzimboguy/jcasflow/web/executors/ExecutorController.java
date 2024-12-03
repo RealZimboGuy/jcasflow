@@ -53,7 +53,7 @@ public class ExecutorController {
 			String cssClass = "";
 			// if the last alive was within 5 min, set to green, if its within 10 min, set to yellow, otherwise grey
 			//using tailwind css classes
-			if (Duration.between(executor.getLastAlive(), Instant.now()).toMinutes() < 5) {
+			if (Duration.between(executor.getLastAlive(), Instant.now()).toMinutes() < 2) {
 				cssClass = "bg-green-300";
 			} else if (Duration.between(executor.getLastAlive(), Instant.now()).toMinutes() < 10) {
 				cssClass = "bg-amber-200";

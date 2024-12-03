@@ -15,6 +15,8 @@ public abstract class JCasWorkFlow {
 
 	public abstract String getName();
 
+	public abstract String getDescription();
+
 	public abstract WorkflowState startingState();
 
 	public abstract WorkflowState errorState();

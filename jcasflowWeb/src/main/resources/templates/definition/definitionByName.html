@@ -15,54 +15,61 @@
         height: 100%;
         margin: 0;
         padding: 0;
-        overflow: hidden;       /* Optional: Hide overflow if SVG exceeds boundaries */
+        overflow: hidden; /* Optional: Hide overflow if SVG exceeds boundaries */
     }
+
     svg {
-        max-width: 100%;        /* Make sure SVG doesn't exceed pre's width */
-        max-height: 100%;       /* Make sure SVG doesn't exceed pre's height */
+        max-width: 100%; /* Make sure SVG doesn't exceed pre's width */
+        max-height: 100%; /* Make sure SVG doesn't exceed pre's height */
     }
 
 </style>
 
 
-    <!-- Main Content -->
-    <div class="flex flex-col flex-grow overflow-scroll" id="main-content">
-        <!-- Top Bar -->
-        <header class="bg-white shadow-md py-4 px-6 flex  justify-start">
+<!-- Main Content -->
+<div class="flex flex-col flex-grow overflow-scroll" id="main-content">
+    <!-- Top Bar -->
+
+    <header class="bg-white shadow-md py-4 px-6 flex  justify-start grid grid-cols-1">
+        <div>
             <h1 class="text-xl font-semibold text-gray-800" th:text="${title}"></h1>
+        </div>
+        <div>
+            <p th:utext="${workflowDefinition.description}"></p>
+        </div>
 
-        </header>
+    </header>
 
-        <main class="p-6 flex-grow">
-            <div class="pb-6">
+    <main class="p-6 flex-grow">
+        <div class="pb-6">
             <section class="bg-white rounded shadow-md p-6">
                 <table class="min-w-full bg-white border border-gray-200">
                     <tbody>
-                    <tr  class="border-b">
+                    <tr class="border-b">
                         <td class="px-4 py-2 text-gray-800" th:text="created"></td>
                         <td class="px-4 py-2 text-gray-800" th:text="${workflowDefinition.created}"></td>
                     </tr>
-                    <tr  class="border-b">
+                    <tr class="border-b">
                         <td class="px-4 py-2 text-gray-800" th:text="updated"></td>
                         <td class="px-4 py-2 text-gray-800" th:text="${workflowDefinition.updated}"></td>
                     </tr>
                     </tbody>
                 </table>
             </section>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+            <div>
+                <section class="bg-white rounded shadow-md p-6">
+                    <h2>Flow Diagram</h2>
+                    <pre class="mermaid" th:text="${workflowDefinition.flowChart}"></pre>
+                </section>
             </div>
-            <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <section class="bg-white rounded shadow-md p-6">
-                        <h2>Flow Diagram</h2>
-                        <pre class="mermaid" th:text="${workflowDefinition.flowChart}"></pre>
-                    </section>
-                </div>
-                <div>
-                    <section class="bg-white rounded shadow-md p-6">
+            <div>
+                <section class="bg-white rounded shadow-md p-6">
                     <h2>Details</h2>
-                    </section>
-                </div>
+                </section>
             </div>
+        </div>
 
-        </main>
-    </div>
+    </main>
+</div>
