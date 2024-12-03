@@ -14,6 +14,8 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.List;
 import java.util.UUID;
 
@@ -59,11 +61,22 @@ public class Dispatcher {
 		}
 
 		logger.info("Dispatcher starting");
+
+		String host = "unknown";
+		try {
+			// Get the local host name
+			InetAddress inetAddress = InetAddress.getLocalHost();
+			host = inetAddress.getHostName();
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+
 		this.executorId = UUID.randomUUID().toString();
 		//insert the executor id into the database
 		ExecutorEntity executorEntity = new ExecutorEntity();
 		executorEntity.setId(UUID.fromString(executorId));
 		executorEntity.setGroup(jCasFlowConfig.getExecutorGroup());
+		executorEntity.setHost(host);
 		executorEntity.setStartedAt(java.time.Instant.now());
 		executorEntity.setLastAlive(java.time.Instant.now());
 		logger.debug("saving executor: {}", executorEntity);

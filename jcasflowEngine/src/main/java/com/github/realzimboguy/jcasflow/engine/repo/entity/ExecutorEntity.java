@@ -8,6 +8,7 @@ public class ExecutorEntity {
 
 	private UUID           id;
 	private String  group;
+	private String  host;
 	private Instant startedAt;
 	private Instant lastAlive;
 
@@ -52,12 +53,23 @@ public class ExecutorEntity {
 		this.lastAlive = lastAlive;
 	}
 
+	public String getHost() {
+
+		return host;
+	}
+
+	public void setHost(String host) {
+
+		this.host = host;
+	}
+
 	@Override
 	public String toString() {
 
 		return "ExecutorEntity{" +
 				"id=" + id +
 				", group='" + group + '\'' +
+				", host='" + host + '\'' +
 				", startedAt=" + startedAt +
 				", lastAlive=" + lastAlive +
 				'}';

@@ -118,6 +118,7 @@ public class DatabaseSetup {
 				.ifNotExists()
 				.withPartitionKey("id", DataTypes.UUID)
 				.withColumn("group", DataTypes.TEXT)
+				.withColumn("host", DataTypes.TEXT)
 				.withColumn("started_at", DataTypes.TIMESTAMP)
 				.withColumn("last_alive", DataTypes.TIMESTAMP);
 
