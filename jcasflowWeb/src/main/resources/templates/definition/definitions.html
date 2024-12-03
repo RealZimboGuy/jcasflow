@@ -16,7 +16,7 @@
     </aside>
 
     <!-- Main Content -->
-    <div class="flex flex-col flex-grow">
+    <div class="flex flex-col flex-grow" id="main-content">
         <!-- Top Bar -->
         <header class="bg-white shadow-md py-4 px-6 flex  justify-start">
             <h1 class="text-xl font-semibold text-gray-800" th:text="${title}"></h1>
@@ -28,14 +28,19 @@
                 <table class="min-w-full bg-white border border-gray-200">
                     <thead class="bg-gray-100 border-b border-gray-200">
                     <tr>
-                        <th class="text-left px-4 py-2 text-gray-600 font-medium">Key</th>
-                        <th class="text-left px-4 py-2 text-gray-600 font-medium">Value</th>
+                        <th class="text-left px-4 py-2 text-gray-600 font-medium">Workflow</th>
+                        <th class="text-left px-4 py-2 text-gray-600 font-medium">Created</th>
+                        <th class="text-left px-4 py-2 text-gray-600 font-medium">Updated</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="setting : ${settings}" class="border-b">
-                        <td class="px-4 py-2 text-gray-800" th:text="${setting.settingKey}"></td>
-                        <td class="px-4 py-2 text-gray-800" th:text="${setting.settingValue}"></td>
+                    <tr th:each="definition : ${definitions}" class="border-b text-gray-800 hover:bg-sky-700 hover:text-white cursor-pointer"
+                        th:hx-get="@{/definitions/{name}(name=${definition.name})}"
+                        hx-target="#main-content"
+                        hx-trigger="click">
+                        <td class="px-4 py-2 " th:text="${definition.name}"></td>
+                        <td class="px-4 py-2 " th:text="${definition.created}"></td>
+                        <td class="px-4 py-2 " th:text="${definition.updated}"></td>
                     </tr>
                     </tbody>
                 </table>

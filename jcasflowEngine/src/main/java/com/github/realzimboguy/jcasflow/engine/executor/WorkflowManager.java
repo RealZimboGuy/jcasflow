@@ -61,6 +61,8 @@ public class WorkflowManager {
 			List<String> manualClasses = new ArrayList<>();
 			List<String> normalClasses = new ArrayList<>();
 
+			List<String> statesToError = new ArrayList<>();
+
 			errorClasses.add(jCasWorkFlow.errorState().method());
 			startClasses.add(jCasWorkFlow.startingState().method());
 
@@ -68,6 +70,13 @@ public class WorkflowManager {
 			for (WorkflowAllowedTransition transition : permittedTransitions) {
 				WorkflowState workflowState = transition.getFrom();
 				WorkflowState to = transition.getTo();
+
+				if (!statesToError.contains(workflowState.name()) && workflowState.stateType() != WorkflowState.WorkflowStateType.END) {
+					statesToError.add(workflowState.name());
+				}
+				if (!statesToError.contains(to.name()) && to.stateType() != WorkflowState.WorkflowStateType.END) {
+					statesToError.add(to.name());
+				}
 
 				Gson gson = new Gson();
 
@@ -87,7 +96,10 @@ public class WorkflowManager {
 
 				sb.append("    ").append(workflowState.name()).append(" ==>").append(" ").append(to.name()).append("(").append(to.method()).append(")\n");
 				//show error state
-				sb.append("    ").append(workflowState.name()).append(" -->|Error| ").append(jCasWorkFlow.errorState().name()).append("(").append(jCasWorkFlow.errorState().method()).append(")\n");
+			}
+
+			for (String string : statesToError) {
+				sb.append("    ").append(string).append(" --> ").append(jCasWorkFlow.errorState().name()).append("\n");
 			}
 
 			sb.append("    classDef errorClass ").append(graphErrorClass).append("\n");

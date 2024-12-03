@@ -1,0 +1,43 @@
+
+    <!-- Main Content -->
+    <div class="flex flex-col flex-grow" id="main-content">
+
+        <!-- Top Bar -->
+        <header class="bg-white shadow-md py-4 px-6 flex  justify-start">
+            <h1 class="text-xl font-semibold text-gray-800" th:text="${title}"></h1>
+
+        </header>
+
+        <main class="p-6 flex-grow">
+            <div class="pb-6">
+            <section class="bg-white rounded shadow-md p-6">
+                <table class="min-w-full bg-white border border-gray-200">
+                    <tbody>
+                    <tr  class="border-b">
+                        <td class="px-4 py-2 text-gray-800" th:text="created"></td>
+                        <td class="px-4 py-2 text-gray-800" th:text="${workflowDefinition.created}"></td>
+                    </tr>
+                    <tr  class="border-b">
+                        <td class="px-4 py-2 text-gray-800" th:text="updated"></td>
+                        <td class="px-4 py-2 text-gray-800" th:text="${workflowDefinition.updated}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </section>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <section class="bg-white rounded shadow-md p-6">
+                        <h2>Flow Diagram</h2>
+                        <pre class="mermaid" th:text="${workflowDefinition.flowChart}"></pre>
+                    </section>
+                </div>
+                <div>
+                    <section class="bg-white rounded shadow-md p-6">
+                    <h2>Details</h2>
+                    </section>
+                </div>
+            </div>
+
+        </main>
+    </div>
