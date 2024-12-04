@@ -26,6 +26,21 @@ public class HomeController {
 		return "home/home.html";
 
 	}
+	@GetMapping("/home/inprogresscount")
+	public String inProgressCount(Model model, HttpServletRequest request) {
+
+		model.addAttribute("workflowsInProgress", homeService.getWorkflowsInProgress());
+		return "home/inProgressCount.html";
+
+	}
+
+	@GetMapping("/home/nextexecutioncount")
+	public String nextExecutionCount(Model model, HttpServletRequest request) {
+
+		model.addAttribute("nextExecution", homeService.getWorkflowsNextExecution());
+		return "home/nextExecutionCount.html";
+
+	}
 
 
 }

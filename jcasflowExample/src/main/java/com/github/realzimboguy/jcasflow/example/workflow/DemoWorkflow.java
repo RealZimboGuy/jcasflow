@@ -127,7 +127,7 @@ public class DemoWorkflow extends JCasWorkFlow {
 
 		}
 
-		return Action.nextState(DemoWorkflowStates.process3, Duration.ofSeconds(10));
+		return Action.nextState(DemoWorkflowStates.process3, Duration.ofSeconds(60));
 	}
 	public Action process3(ExecutorState executorState) {
 		logger.info("Processing3 in workflow called");

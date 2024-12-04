@@ -25,10 +25,32 @@
 
         <!-- Dashboard Content -->
         <main class="p-6 flex-grow">
-            <div class="bg-white p-6 rounded shadow-md">
+            <div class="bg-white p-6 rounded shadow-md pb-6">
                 <h2 class="text-2xl font-semibold mb-4">Welcome to JCASFLOW</h2>
                 <p class="text-gray-600">This is your dashboard home page. Use the side navigation to explore features.</p>
             </div>
+            <div class="grid grid-cols-2 gap-2 pt-6">
+                <div class="bg-white rounded shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-4">Workflows in Progress</h2>
+                    <section
+                              th:hx-get="@{/home/inprogresscount}"
+                             hx-trigger="load"
+                             hx-indicator="#spinner"
+                              >
+                    </section>
+                </div>
+                <div class="bg-white rounded shadow-md p-6">
+                    <h2 class="text-xl font-semibold mb-4">Workflows To Execute</h2>
+                    <section
+                              th:hx-get="@{/home/nextexecutioncount}"
+                              hx-trigger="load"
+                              hx-indicator="#spinner"
+                    >
+                    </section>
+                </div>
+            </div>
+
+
         </main>
     </div>
 </div>

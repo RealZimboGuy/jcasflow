@@ -7,9 +7,12 @@ import com.datastax.oss.driver.api.core.cql.SimpleStatementBuilder;
 import com.github.realzimboguy.jcasflow.engine.config.JCasFlowConfig;
 import com.github.realzimboguy.jcasflow.engine.repo.CassandraConnectionPool;
 import com.github.realzimboguy.jcasflow.engine.repo.entity.WorkflowInProgressEntity;
+import com.github.realzimboguy.jcasflow.engine.repo.entity.WorkflowInProgressGroupCountEntity;
 import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @DependsOn("databaseSetup")
@@ -68,7 +71,22 @@ public class WorkflowInProgressDao {
 
 	}
 
+	public List<WorkflowInProgressGroupCountEntity> countInProgress() {
 
+		SimpleStatement statement = new SimpleStatementBuilder(
+				"SELECT group,COUNT(*) as count FROM "+jCasFlowConfig.getDatabaseKeyspace()+".workflow_in_progress group by group")
+				.setConsistencyLevel(consistencyLevel)
+				.build();
+
+		ResultSet rs = CassandraConnectionPool.getSession().execute(statement);
+		return rs.map(row -> {
+			WorkflowInProgressGroupCountEntity entity = new WorkflowInProgressGroupCountEntity();
+			entity.setGroup(row.getString("group"));
+			entity.setCount(row.getLong("count"));
+			return entity;
+		}).all();
+
+	}
 
 
 }

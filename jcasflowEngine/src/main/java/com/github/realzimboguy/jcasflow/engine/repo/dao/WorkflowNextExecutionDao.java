@@ -7,6 +7,7 @@ import com.datastax.oss.driver.api.core.cql.SimpleStatementBuilder;
 import com.github.realzimboguy.jcasflow.engine.config.JCasFlowConfig;
 import com.github.realzimboguy.jcasflow.engine.repo.CassandraConnectionPool;
 import com.github.realzimboguy.jcasflow.engine.repo.entity.WorkflowNextExecutionEntity;
+import com.github.realzimboguy.jcasflow.engine.repo.entity.WorkflowNextExecutionGroupCountEntity;
 import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Service;
@@ -120,6 +121,54 @@ public List<WorkflowNextExecutionEntity> getWorkflowsForExecution(String group, 
 
 		CassandraConnectionPool.getSession().execute(statement);
 	}
+
+
+	public List<WorkflowNextExecutionGroupCountEntity> countNextExecution(Instant start, Instant end) {
+
+		SimpleStatement statement = new SimpleStatementBuilder(
+				"SELECT group,COUNT(*) as count FROM "+jCasFlowConfig.getDatabaseKeyspace()+".workflow_next_execution" +
+						" WHERE next_execution >= ? AND next_execution <= ?  group by group ALLOW FILTERING")
+				.addPositionalValues(
+						start,end
+				)
+				.setConsistencyLevel(consistencyLevel)
+				.build();
+
+		ResultSet rs = CassandraConnectionPool.getSession().execute(statement);
+		return rs.map(row -> {
+			WorkflowNextExecutionGroupCountEntity entity = new WorkflowNextExecutionGroupCountEntity();
+			entity.setGroup(row.getString("group"));
+			entity.setCount(row.getLong("count"));
+			return entity;
+		}).all();
+
+	}
+
+
+
+
+	public List<WorkflowNextExecutionGroupCountEntity> countNextExecution(Instant greaterThan) {
+
+		SimpleStatement statement = new SimpleStatementBuilder(
+				"SELECT group,COUNT(*) as count FROM "+jCasFlowConfig.getDatabaseKeyspace()+".workflow_next_execution" +
+						" WHERE next_execution >= ?  group by group ALLOW FILTERING")
+				.addPositionalValues(
+						greaterThan
+				)
+				.setConsistencyLevel(consistencyLevel)
+				.build();
+
+		ResultSet rs = CassandraConnectionPool.getSession().execute(statement);
+		return rs.map(row -> {
+			WorkflowNextExecutionGroupCountEntity entity = new WorkflowNextExecutionGroupCountEntity();
+			entity.setGroup(row.getString("group"));
+			entity.setCount(row.getLong("count"));
+			return entity;
+		}).all();
+
+	}
+
+
 
 
 }

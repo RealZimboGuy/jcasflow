@@ -1,0 +1,14 @@
+<table class="min-w-full bg-white border border-gray-200">
+    <thead class="bg-gray-100 border-b border-gray-200">
+    <tr>
+        <th class="text-left px-4 py-2 text-gray-600 font-medium">Group</th>
+        <th class="text-left px-4 py-2 text-gray-600 font-medium">Count</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="item : ${workflowsInProgress}" class="border-b">
+        <td class="px-4 py-2 text-gray-800" th:text="${item.group}"></td>
+        <td class="px-4 py-2 text-gray-800" th:text="${item.count}"></td>
+    </tr>
+    </tbody>
+</table>
