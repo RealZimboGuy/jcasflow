@@ -2,8 +2,11 @@ package com.github.realzimboguy.jcasflow.engine.executor;
 
 import com.github.realzimboguy.jcasflow.engine.repo.dao.WorkflowDao;
 import com.github.realzimboguy.jcasflow.engine.repo.dao.WorkflowNextExecutionDao;
+import com.github.realzimboguy.jcasflow.engine.repo.entity.WorkflowByTypeEntity;
+import com.github.realzimboguy.jcasflow.engine.repo.entity.WorkflowCreatedEntity;
 import com.github.realzimboguy.jcasflow.engine.repo.entity.WorkflowEntity;
 import com.github.realzimboguy.jcasflow.engine.repo.entity.WorkflowNextExecutionEntity;
+import com.github.realzimboguy.jcasflow.engine.service.WorkflowBuilderService;
 import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +20,8 @@ public class WorkflowBuilder {
 	Logger         logger         = LoggerFactory.getLogger(WorkflowBuilder.class);
 	WorkflowEntity workflowEntity = new WorkflowEntity();
 	WorkflowNextExecutionEntity nextExecutionEntity = new WorkflowNextExecutionEntity();
+	WorkflowCreatedEntity workflowCreatedEntity = new WorkflowCreatedEntity();
+	WorkflowByTypeEntity workflowByTypeEntity = new WorkflowByTypeEntity();
 
 	Gson gson = new Gson();
 	private boolean buildCalled = false;
@@ -46,19 +51,38 @@ public class WorkflowBuilder {
 			nextExecutionEntity.setNextExecution(java.time.ZonedDateTime.now().toInstant());
 		}
 
+		workflowCreatedEntity.setGroup(workflowEntity.getExecutorGroup());
+		workflowCreatedEntity.setCreated(workflowEntity.getCreated());
+		workflowCreatedEntity.setWorkflowId(workflowEntity.getId());
+		workflowCreatedEntity.setWorkflowType(workflowEntity.getWorkflowType());
+		workflowCreatedEntity.setExternalId(workflowEntity.getExternalId());
+		workflowCreatedEntity.setBusinessKey(workflowEntity.getBusinessKey());
+
+		workflowByTypeEntity.setGroup(workflowEntity.getExecutorGroup());
+		workflowByTypeEntity.setWorkflowType(workflowEntity.getWorkflowType());
+		workflowByTypeEntity.setWorkflowId(workflowEntity.getId());
+		workflowByTypeEntity.setCreated(workflowEntity.getCreated());
+		workflowByTypeEntity.setExternalId(workflowEntity.getExternalId());
+		workflowByTypeEntity.setBusinessKey(workflowEntity.getBusinessKey());
+		workflowByTypeEntity.setStatus(workflowEntity.getStatus().name());
+		workflowByTypeEntity.setState(workflowEntity.getState());
+
+
 		buildCalled = true;
 
 		return this;
 	}
 
-	public void save(WorkflowDao workflowDao, WorkflowNextExecutionDao workflowNextExecutionDao) {
+	public void save(WorkflowBuilderService workflowBuilderService) {
 
 		if (!buildCalled){
 			logger.warn("build() was not called before save()");
 			throw new RuntimeException("build() must be called before save()");
 		}
-		workflowDao.save(workflowEntity);
-		workflowNextExecutionDao.save(nextExecutionEntity);
+		workflowBuilderService.getWorkflowDao().save(workflowEntity);
+		workflowBuilderService.getWorkflowNextExecutionDao().save(nextExecutionEntity);
+		workflowBuilderService.getWorkflowCreatedDao().save(workflowCreatedEntity);
+		workflowBuilderService.getWorkflowByTypeDao().save(workflowByTypeEntity);
 		logger.info("Workflow saved");
 
 	}

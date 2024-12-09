@@ -43,6 +43,21 @@ public class WorkflowDao {
 		CassandraConnectionPool.getSession().execute(statement);
 
 	}
+	public void setState(UUID workflowId, String method, WorkflowStatus workflowStatus) {
+
+		SimpleStatement statement = new SimpleStatementBuilder(
+				"UPDATE "+jCasFlowConfig.getDatabaseKeyspace()+".workflow SET state = ?, status = ? WHERE bucket = ? and id = ?")
+				.addPositionalValues(
+						method,
+						DaoUtil.getBucket(workflowId, jCasFlowConfig.getDatabaseBucketSize()),
+						workflowId
+				)
+				.setConsistencyLevel(consistencyLevel)
+				.build();
+
+		CassandraConnectionPool.getSession().execute(statement);
+
+	}
 
 	@PostConstruct
 	public void setup() {
@@ -118,7 +133,7 @@ public class WorkflowDao {
 				workflowEntity.setNextActivation(row.get("next_activation", Instant.class));
 				workflowEntity.setStarted(row.get("started", Instant.class));
 				workflowEntity.setExecutorId(row.getString("executor_id"));
-				workflowEntity.setExecutorId(row.getString("executor_group"));
+				workflowEntity.setExecutorGroup(row.getString("executor_group"));
 				workflowEntity.setWorkflowType(row.getString("workflow_type"));
 				workflowEntity.setExternalId(row.getString("external_id"));
 				workflowEntity.setBusinessKey(row.getString("business_key"));

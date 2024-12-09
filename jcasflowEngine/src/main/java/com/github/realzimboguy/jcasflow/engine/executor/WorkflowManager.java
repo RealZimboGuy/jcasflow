@@ -1,5 +1,6 @@
 package com.github.realzimboguy.jcasflow.engine.executor;
 
+import com.github.realzimboguy.jcasflow.engine.config.JCasFlowConfig;
 import com.github.realzimboguy.jcasflow.engine.repo.dao.WorkflowDefinitionDao;
 import com.github.realzimboguy.jcasflow.engine.repo.entity.WorkflowDefinitionEntity;
 import com.github.realzimboguy.jcasflow.engine.workflow.JCasWorkFlow;
@@ -22,6 +23,7 @@ public class WorkflowManager {
 
 	private final ApplicationContext    context;
     private final WorkflowDefinitionDao workflowDefinitionDao;
+	private final JCasFlowConfig jCasFlowConfig;
 
 	@Value("${jcasflow.display.graph.errorClass:fill:#fc0,stroke:#f66,stroke-width:2px,color:#fff,stroke-dasharray: 5 5;}")
 	private String graphErrorClass;
@@ -34,10 +36,11 @@ public class WorkflowManager {
 	@Value("${jcasflow.display.graph.normalClass:fill:#c2e0f2,color:#000;}")
 	private String graphNormalClass;
 
-	public WorkflowManager(ApplicationContext context, WorkflowDefinitionDao workflowDefinitionDao) {
+	public WorkflowManager(ApplicationContext context, WorkflowDefinitionDao workflowDefinitionDao, JCasFlowConfig jCasFlowConfig) {
 
 		this.context = context;
 		this.workflowDefinitionDao = workflowDefinitionDao;
+		this.jCasFlowConfig = jCasFlowConfig;
 	}
 
 	@PostConstruct
@@ -126,11 +129,12 @@ public class WorkflowManager {
 
 			logger.info("Workflow: {} \n{}",jCasWorkFlow.getName(),sb.toString());
 
-			WorkflowDefinitionEntity workflowDefinitionEntity = workflowDefinitionDao.get(jCasWorkFlow.getName());
+			WorkflowDefinitionEntity workflowDefinitionEntity = workflowDefinitionDao.get(jCasFlowConfig.getExecutorGroup(),jCasWorkFlow.getName());
 
 			if (workflowDefinitionEntity == null) {
 				logger.info("Saving workflow definition: {}",jCasWorkFlow.getName());
 				workflowDefinitionEntity = new WorkflowDefinitionEntity();
+				workflowDefinitionEntity.setGroup(jCasFlowConfig.getExecutorGroup());
 				workflowDefinitionEntity.setName(jCasWorkFlow.getName());
 				workflowDefinitionEntity.setDescription(jCasWorkFlow.getDescription());
 				workflowDefinitionEntity.setFlowChart(sb.toString());

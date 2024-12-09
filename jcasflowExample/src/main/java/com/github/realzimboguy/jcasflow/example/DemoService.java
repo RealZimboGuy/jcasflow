@@ -4,22 +4,22 @@ import com.github.realzimboguy.jcasflow.engine.config.JCasFlowConfig;
 import com.github.realzimboguy.jcasflow.engine.executor.WorkflowBuilder;
 import com.github.realzimboguy.jcasflow.engine.repo.dao.WorkflowDao;
 import com.github.realzimboguy.jcasflow.engine.repo.dao.WorkflowNextExecutionDao;
+import com.github.realzimboguy.jcasflow.engine.service.WorkflowBuilderService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 
 @Service
 public class DemoService {
 
-	private final WorkflowDao              workflowDao;
-	private final WorkflowNextExecutionDao workflowNextExecutionDao;
+	private final WorkflowBuilderService workflowBuilderService;
 	private final JCasFlowConfig           jCasFlowConfig;
 
-	public DemoService(WorkflowDao workflowDao, WorkflowNextExecutionDao workflowNextExecutionDao, JCasFlowConfig jCasFlowConfig) {
+	public DemoService(WorkflowBuilderService workflowBuilderService, JCasFlowConfig jCasFlowConfig) {
 
-		this.workflowDao = workflowDao;
-		this.workflowNextExecutionDao = workflowNextExecutionDao;
+		this.workflowBuilderService = workflowBuilderService;
 		this.jCasFlowConfig = jCasFlowConfig;
 	}
+
 
 	@PostConstruct
 	public void init() {
@@ -35,7 +35,7 @@ public class DemoService {
 				.withStateVar("var_name","value")
 				.withNextExecution(java.time.ZonedDateTime.now().plusSeconds(5).toInstant())
 				.build()
-				.save(workflowDao, workflowNextExecutionDao);
+				.save(workflowBuilderService);
 
 	}
 

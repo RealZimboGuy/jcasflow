@@ -23,6 +23,7 @@ public class WorkflowExecutor implements Runnable {
 	private final String executorId;
 	private final UUID   workflowId;
 	private final WorkflowDao workflowDao;
+	private final WorkflowByTypeDao workflowByTypeDao;
 	private final WorkflowInProgressDao workflowInProgressDao;
 	private final WorkflowNextExecutionDao workflowNextExecutionDao;
 	private final WorkflowRunningDao workflowRunningDao;
@@ -31,13 +32,14 @@ public class WorkflowExecutor implements Runnable {
 	private final     ApplicationContext context;
 	private final JCasFlowConfig     jCasFlowConfig;
 
-	public WorkflowExecutor(String group, String executorId, UUID workflowId, WorkflowDao workflowDao, WorkflowInProgressDao workflowInProgressDao,
+	public WorkflowExecutor(String group, String executorId, UUID workflowId, WorkflowDao workflowDao, WorkflowByTypeDao workflowByTypeDao, WorkflowInProgressDao workflowInProgressDao,
 	                        WorkflowNextExecutionDao workflowNextExecutionDao, WorkflowRunningDao workflowRunningDao, WorkflowActionDao workflowActionDao, ApplicationContext context,
 	                        JCasFlowConfig jCasFlowConfig) {
 		this.group      = group;
 		this.executorId = executorId;
 		this.workflowId = workflowId;
 		this.workflowDao = workflowDao;
+		this.workflowByTypeDao = workflowByTypeDao;
 		this.workflowInProgressDao = workflowInProgressDao;
 		this.workflowNextExecutionDao = workflowNextExecutionDao;
 		this.workflowRunningDao = workflowRunningDao;
@@ -130,7 +132,7 @@ public class WorkflowExecutor implements Runnable {
 				}
 
 				logger.info("Scheduling workflow: " + workflowId + " for execution at: " + executeAt);
-				workflowDao.setState(workflowId, action.getWorkflowState().method());
+				workflowDao.setState(workflowId, action.getWorkflowState().method(),WorkflowStatus.SCHEDULED);
 
 				logger.info("Remove in progress flag: " + workflowId);
 				workflowInProgressDao.delete(inProgressEntity);
@@ -142,6 +144,9 @@ public class WorkflowExecutor implements Runnable {
 						workflowEntity.getId()));
 
 				logger.info("Workflow next execution added: " + workflowId);
+
+
+				workflowByTypeDao.update(workflowEntity.getExecutorGroup(),workflowEntity.getWorkflowType(),workflowId,WorkflowStatus.SCHEDULED.name(),action.getWorkflowState().method());
 
 				workflowActionDao.save( new WorkflowActionEntity(
 						workflowId,
@@ -176,6 +181,7 @@ public class WorkflowExecutor implements Runnable {
 					));
 
 					workflowDao.updateStatus(workflowId, WorkflowStatus.FAILED,workflowEntity.getExecutionCount()+1,workflowEntity.getRetryCount() + 1);
+					workflowByTypeDao.update(workflowEntity.getExecutorGroup(),workflowEntity.getWorkflowType(),workflowId,WorkflowStatus.FAILED.name(),workflowEntity.getState());
 				}else {
 					logger.warn("Exception in workflow, retrying: " + workflowId, e.getCause());
 
@@ -186,12 +192,14 @@ public class WorkflowExecutor implements Runnable {
 							workflowEntity.getRetryCount(),
 							WorkflowActionType.SYSTEM,
 							"Error",
-							throwableToString(e.getCause()),
+							throwableToString(e.getCause() == null ? e : e.getCause()),
 							java.time.Instant.now()
 					));
 
 
 					workflowDao.updateStatus(workflowId, WorkflowStatus.IN_PROGRESS,workflowEntity.getExecutionCount()+1,workflowEntity.getRetryCount() + 1);
+					workflowByTypeDao.update(workflowEntity.getExecutorGroup(),workflowEntity.getWorkflowType(),workflowId,WorkflowStatus.IN_PROGRESS.name(),workflowEntity.getState());
+
 					// work out how long to wait based on the retry count and the min/max intervals
 					long difference = workflow.retry().getMaxInterval().toSeconds() - workflow.retry().getMinInterval().toSeconds();
 					long intervalMs = difference / workflow.retry().getMaxFails();
@@ -246,10 +254,12 @@ public class WorkflowExecutor implements Runnable {
 			logger.info("Starting state :{}", methodCall);
 			logger.info("Workflow status updated to IN_PROGRESS from NEW: " + workflowId);
 			workflowDao.updateStatus(workflowId, WorkflowStatus.IN_PROGRESS, workflowEntity.getExecutionCount()+1,0, executorId);
+			workflowByTypeDao.update(workflowEntity.getExecutorGroup(),workflowEntity.getWorkflowType(),workflowId,WorkflowStatus.IN_PROGRESS.name(),methodCall);
 
 		}else {
 			logger.info("Workflow status updated to IN_PROGRESS: " + workflowId);
 			workflowDao.updateStatus(workflowId, WorkflowStatus.IN_PROGRESS, workflowEntity.getExecutionCount()+1,workflowEntity.getRetryCount(),executorId);
+			workflowByTypeDao.update(workflowEntity.getExecutorGroup(),workflowEntity.getWorkflowType(),workflowId,WorkflowStatus.IN_PROGRESS.name(),methodCall);
 		}
 
 		if (
@@ -286,6 +296,8 @@ public class WorkflowExecutor implements Runnable {
 
 			workflowDao.updateStatus(workflowId, WorkflowStatus.FAILED,workflowEntity.getExecutionCount()+1,workflowEntity.getRetryCount());
 			workflowDao.setState(workflowId, action.getWorkflowState().method());
+			workflowByTypeDao.update(workflowEntity.getExecutorGroup(),workflowEntity.getWorkflowType(),workflowId,WorkflowStatus.FAILED.name(),action.getWorkflowState().method());
+
 			logger.info("Workflow status updated to ERROR: " + workflowId);
 
 			workflowActionDao.save( new WorkflowActionEntity(
@@ -306,6 +318,8 @@ public class WorkflowExecutor implements Runnable {
 		) {
 			workflowDao.updateStatus(workflowId, WorkflowStatus.COMPLETED,workflowEntity.getExecutionCount()+1,workflowEntity.getRetryCount());
 			workflowDao.setState(workflowId, action.getWorkflowState().method());
+			workflowByTypeDao.update(workflowEntity.getExecutorGroup(),workflowEntity.getWorkflowType(),workflowId,WorkflowStatus.COMPLETED.name(),action.getWorkflowState().method());
+
 			logger.info("Workflow status updated to COMPLETED: " + workflowId);
 			return action;
 		}
@@ -313,6 +327,7 @@ public class WorkflowExecutor implements Runnable {
 		if (action.getDuration() == null && action.getExecuteAt() == null) {
 			logger.info("Fast execute workflow: " + workflowId);
 			workflowDao.setState(workflowId, action.getWorkflowState().method()); // this allows for recovery at this specific state
+			workflowByTypeDao.update(workflowEntity.getExecutorGroup(),workflowEntity.getWorkflowType(),workflowId,WorkflowStatus.IN_PROGRESS.name(),action.getWorkflowState().method());
 
 			workflowEntity.setState(action.getWorkflowState().method());
 			workflowEntity.setStatus(WorkflowStatus.IN_PROGRESS);

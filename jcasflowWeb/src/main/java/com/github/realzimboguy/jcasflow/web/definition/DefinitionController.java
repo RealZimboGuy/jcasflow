@@ -54,10 +54,10 @@ public class DefinitionController {
 
 	}
 
-	@GetMapping("definitions/{name}")
-	public String definitionByName(Model model, HttpServletRequest request, @PathVariable String name) {
+	@GetMapping("definitions/{group}/{name}")
+	public String definitionByName(Model model, HttpServletRequest request, @PathVariable String group, @PathVariable String name) {
 
-		WorkflowDefinitionEntity workflowDefinitionEntity = workflowDefinitionDao.get(name);
+		WorkflowDefinitionEntity workflowDefinitionEntity = workflowDefinitionDao.get(group,name);
 
 		model.addAttribute("requestURI", request.getRequestURI());
 		model.addAttribute("title", "Workflow Definition - " + workflowDefinitionEntity.getName()  );

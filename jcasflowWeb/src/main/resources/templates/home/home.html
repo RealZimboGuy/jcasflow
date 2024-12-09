@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
 
-    <th:block th:include="fragments/header.html :: header"></th:block>
+    <th:block th:include="~{fragments/header.html :: header}"></th:block>
 
 </head>
 <body class="bg-gray-100 font-sans leading-normal tracking-normal">
@@ -11,7 +11,7 @@
     <aside class="w-64 bg-gray-800 text-gray-200 flex flex-col">
         <div class="p-6 text-center font-bold text-lg">JCASFLOW</div>
 
-        <nav class="flex-grow" th:include="fragments/nav.html :: nav" > </nav>
+        <nav class="flex-grow" th:include="~{fragments/nav.html :: nav}" > </nav>
 
     </aside>
 

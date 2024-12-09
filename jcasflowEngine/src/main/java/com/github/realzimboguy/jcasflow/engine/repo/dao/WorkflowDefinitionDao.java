@@ -44,9 +44,10 @@ public class WorkflowDefinitionDao {
 
 		SimpleStatement statement = new SimpleStatementBuilder(
 				"INSERT INTO "+jCasFlowConfig.getDatabaseKeyspace()+".workflow_definitions " +
-						"(name,description, created, updated, flow_chart) " +
-						"VALUES (?,?,?,?,?)")
+						"(group,name,description, created, updated, flow_chart) " +
+						"VALUES (?,?,?,?,?,?)")
 				.addPositionalValues(
+						workflowDefinitionEntity.getGroup(),
 						workflowDefinitionEntity.getName(),
 						workflowDefinitionEntity.getDescription(),
 						workflowDefinitionEntity.getCreated(),
@@ -75,11 +76,11 @@ public class WorkflowDefinitionDao {
 		return fromResultSetList(rs);
 	}
 
-	public WorkflowDefinitionEntity get(String name) {
+	public WorkflowDefinitionEntity get(String group,String name) {
 
 		SimpleStatement statement = new SimpleStatementBuilder(
-				"SELECT * FROM "+jCasFlowConfig.getDatabaseKeyspace()+".workflow_definitions WHERE name = ?")
-				.addPositionalValues(name)
+				"SELECT * FROM "+jCasFlowConfig.getDatabaseKeyspace()+".workflow_definitions WHERE group = ? AND name = ?")
+				.addPositionalValues(group,name)
 				.setConsistencyLevel(consistencyLevel)
 				.build();
 
@@ -98,6 +99,7 @@ public class WorkflowDefinitionDao {
 		WorkflowDefinitionEntity workflowDefinitionEntity = new WorkflowDefinitionEntity();
 		rs.forEach(row -> {
 			if (row != null) {
+				workflowDefinitionEntity.setGroup(row.getString("group"));
 				workflowDefinitionEntity.setName(row.getString("name"));
 				workflowDefinitionEntity.setDescription(row.getString("description"));
 				workflowDefinitionEntity.setCreated(row.getInstant("created"));
@@ -119,6 +121,7 @@ public class WorkflowDefinitionDao {
 		rs.forEach(row -> {
 			if (row != null) {
 				WorkflowDefinitionEntity workflowDefinitionEntity = new WorkflowDefinitionEntity();
+				workflowDefinitionEntity.setGroup(row.getString("group"));
 				workflowDefinitionEntity.setName(row.getString("name"));
 				workflowDefinitionEntity.setDescription(row.getString("description"));
 				workflowDefinitionEntity.setCreated(row.getInstant("created"));

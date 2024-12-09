@@ -119,7 +119,7 @@ public class DemoWorkflow extends JCasWorkFlow {
 	public Action process2(ExecutorState executorState) {
 		int exceptionCounter = executorState.getVar("exceptionCounter", Integer.class);
 		logger.info("Processing2 in workflow called: " + exceptionCounter);
-		if (exceptionCounter < 5) {
+		if (exceptionCounter < 3) {
 			executorState.setVar("exceptionCounter", exceptionCounter + 1);
 			throw new RuntimeException("Test exception: + " + exceptionCounter);
 		}else {
@@ -127,7 +127,7 @@ public class DemoWorkflow extends JCasWorkFlow {
 
 		}
 
-		return Action.nextState(DemoWorkflowStates.process3, Duration.ofSeconds(60));
+		return Action.nextState(DemoWorkflowStates.process3, Duration.ofSeconds(10));
 	}
 	public Action process3(ExecutorState executorState) {
 		logger.info("Processing3 in workflow called");

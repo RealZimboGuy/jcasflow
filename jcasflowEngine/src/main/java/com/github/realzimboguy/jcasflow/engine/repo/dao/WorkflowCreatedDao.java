@@ -6,6 +6,7 @@ import com.datastax.oss.driver.api.core.cql.SimpleStatement;
 import com.datastax.oss.driver.api.core.cql.SimpleStatementBuilder;
 import com.github.realzimboguy.jcasflow.engine.config.JCasFlowConfig;
 import com.github.realzimboguy.jcasflow.engine.repo.CassandraConnectionPool;
+import com.github.realzimboguy.jcasflow.engine.repo.entity.WorkflowCreatedEntity;
 import com.github.realzimboguy.jcasflow.engine.repo.entity.WorkflowNextExecutionEntity;
 import com.github.realzimboguy.jcasflow.engine.repo.entity.WorkflowNextExecutionGroupCountEntity;
 import jakarta.annotation.PostConstruct;
@@ -19,14 +20,14 @@ import java.util.List;
 
 @Service
 @DependsOn("databaseSetup")
-public class WorkflowNextExecutionDao {
+public class WorkflowCreatedDao {
 
 	ConsistencyLevel consistencyLevel;
 	ConsistencyLevel dispatcherConsistencyLevel;
 
 	private final JCasFlowConfig jCasFlowConfig;
 
-	public WorkflowNextExecutionDao(JCasFlowConfig jCasFlowConfig) {
+	public WorkflowCreatedDao(JCasFlowConfig jCasFlowConfig) {
 
 		this.jCasFlowConfig = jCasFlowConfig;
 	}
@@ -75,23 +76,25 @@ public List<WorkflowNextExecutionEntity> getWorkflowsForExecution(String group, 
 		return res;
 	}
 
-	public WorkflowNextExecutionEntity save(WorkflowNextExecutionEntity workflowNextExecutionEntity) {
+	public WorkflowCreatedEntity save(WorkflowCreatedEntity workflowCreatedEntity) {
 
 		SimpleStatement statement = new SimpleStatementBuilder(
-				"INSERT INTO "+jCasFlowConfig.getDatabaseKeyspace()+".workflow_next_execution " +
-						"(group,next_execution,workflow_id) " +
-						"VALUES (?,?,?)")
+				"INSERT INTO "+jCasFlowConfig.getDatabaseKeyspace()+".workflow_created " +
+						"(group, created, workflow_id, workflow_type, external_id, business_key) VALUES (?,?,?,?,?,?)")
 				.addPositionalValues(
-						workflowNextExecutionEntity.getGroup(),
-						workflowNextExecutionEntity.getNextExecution(),
-						workflowNextExecutionEntity.getWorkflowId()
+						workflowCreatedEntity.getGroup(),
+						workflowCreatedEntity.getCreated(),
+						workflowCreatedEntity.getWorkflowId(),
+						workflowCreatedEntity.getWorkflowType(),
+						workflowCreatedEntity.getExternalId(),
+						workflowCreatedEntity.getBusinessKey()
 				)
-				.setConsistencyLevel(consistencyLevel)
+				.setConsistencyLevel(dispatcherConsistencyLevel)
 				.build();
 
 		ResultSet rs = CassandraConnectionPool.getSession().execute(statement);
 		if (rs.wasApplied()) {
-			return workflowNextExecutionEntity;
+			return workflowCreatedEntity;
 		}
 		return null;
 	}

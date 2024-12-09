@@ -5,6 +5,7 @@ import java.util.UUID;
 
 public class WorkflowDefinitionEntity {
 
+	private String  group;
 	private String  name;
 	private String  description;
 	private Instant created;
@@ -59,5 +60,15 @@ public class WorkflowDefinitionEntity {
 	public void setDescription(String description) {
 
 		this.description = description;
+	}
+
+	public String getGroup() {
+
+		return group;
+	}
+
+	public void setGroup(String group) {
+
+		this.group = group;
 	}
 }

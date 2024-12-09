@@ -40,53 +40,56 @@ public class HomeService {
 		Instant inOneHour = now.plusSeconds(3600);
 		Instant inOneDay = now.plusSeconds(86400);
 
-		CompletableFuture<List<WorkflowNextExecutionGroupCountEntity>> futureInFiveMin = CompletableFuture.supplyAsync(() ->
-			workflowNextExecutionDao.countNextExecution(now, inFiveMin)
-		);
-		CompletableFuture<List<WorkflowNextExecutionGroupCountEntity>> futureInThirtyMin = CompletableFuture.supplyAsync(() ->
-			workflowNextExecutionDao.countNextExecution(inFiveMin, inThirtyMin)
-		);
+		for (String group : workflowNextExecutionDao.getGroups()) {
 
-		CompletableFuture<List<WorkflowNextExecutionGroupCountEntity>> futureInOneHour = CompletableFuture.supplyAsync(() ->
-			workflowNextExecutionDao.countNextExecution(inThirtyMin, inOneHour)
-		);
+			CompletableFuture<List<WorkflowNextExecutionGroupCountEntity>> futureInFiveMin = CompletableFuture.supplyAsync(() ->
+					workflowNextExecutionDao.countNextExecution(group,now, inFiveMin)
+			);
+			CompletableFuture<List<WorkflowNextExecutionGroupCountEntity>> futureInThirtyMin = CompletableFuture.supplyAsync(() ->
+					workflowNextExecutionDao.countNextExecution(group,inFiveMin, inThirtyMin)
+			);
 
-		CompletableFuture<List<WorkflowNextExecutionGroupCountEntity>> futureInOneDay = CompletableFuture.supplyAsync(() ->
-				workflowNextExecutionDao.countNextExecution(inOneHour, inOneDay)
-		);
+			CompletableFuture<List<WorkflowNextExecutionGroupCountEntity>> futureInOneHour = CompletableFuture.supplyAsync(() ->
+					workflowNextExecutionDao.countNextExecution(group,inThirtyMin, inOneHour)
+			);
 
-		CompletableFuture<List<WorkflowNextExecutionGroupCountEntity>> futureGreaterOneDay = CompletableFuture.supplyAsync(() ->
-				workflowNextExecutionDao.countNextExecution(inOneHour, inOneDay)
-		);
+			CompletableFuture<List<WorkflowNextExecutionGroupCountEntity>> futureInOneDay = CompletableFuture.supplyAsync(() ->
+					workflowNextExecutionDao.countNextExecution(group,inOneHour, inOneDay)
+			);
+
+			CompletableFuture<List<WorkflowNextExecutionGroupCountEntity>> futureGreaterOneDay = CompletableFuture.supplyAsync(() ->
+					workflowNextExecutionDao.countNextExecution(group, inOneDay)
+			);
 
 
-		CompletableFuture.allOf(futureInFiveMin, futureInThirtyMin, futureInOneHour, futureInOneDay, futureGreaterOneDay).join();
+			CompletableFuture.allOf(futureInFiveMin, futureInThirtyMin, futureInOneHour, futureInOneDay, futureGreaterOneDay).join();
 
-		//add all the futures to the results
-		for (WorkflowNextExecutionGroupCountEntity workflowNextExecutionGroupCountEntity : futureInFiveMin.join()) {
-			workflowNextExecutionGroupCountModels.add(new WorkflowNextExecutionGroupCountModel("In 5 min",
-					workflowNextExecutionGroupCountEntity.getGroup(),
-					workflowNextExecutionGroupCountEntity.getCount()));
-		}
-		for (WorkflowNextExecutionGroupCountEntity workflowNextExecutionGroupCountEntity : futureInThirtyMin.join()) {
-			workflowNextExecutionGroupCountModels.add(new WorkflowNextExecutionGroupCountModel("In 30 min",
-					workflowNextExecutionGroupCountEntity.getGroup(),
-					workflowNextExecutionGroupCountEntity.getCount()));
-		}
-		for (WorkflowNextExecutionGroupCountEntity workflowNextExecutionGroupCountEntity : futureInOneHour.join()) {
-			workflowNextExecutionGroupCountModels.add(new WorkflowNextExecutionGroupCountModel("In 1 hour",
-					workflowNextExecutionGroupCountEntity.getGroup(),
-					workflowNextExecutionGroupCountEntity.getCount()));
-		}
-		for (WorkflowNextExecutionGroupCountEntity workflowNextExecutionGroupCountEntity : futureInOneDay.join()) {
-			workflowNextExecutionGroupCountModels.add(new WorkflowNextExecutionGroupCountModel("In 1 day",
-					workflowNextExecutionGroupCountEntity.getGroup(),
-					workflowNextExecutionGroupCountEntity.getCount()));
-		}
-		for (WorkflowNextExecutionGroupCountEntity workflowNextExecutionGroupCountEntity : futureGreaterOneDay.join()) {
-			workflowNextExecutionGroupCountModels.add(new WorkflowNextExecutionGroupCountModel("Greater than 1 day",
-					workflowNextExecutionGroupCountEntity.getGroup(),
-					workflowNextExecutionGroupCountEntity.getCount()));
+			//add all the futures to the results
+			for (WorkflowNextExecutionGroupCountEntity workflowNextExecutionGroupCountEntity : futureInFiveMin.join()) {
+				workflowNextExecutionGroupCountModels.add(new WorkflowNextExecutionGroupCountModel("In 5 min",
+						workflowNextExecutionGroupCountEntity.getGroup(),
+						workflowNextExecutionGroupCountEntity.getCount()));
+			}
+			for (WorkflowNextExecutionGroupCountEntity workflowNextExecutionGroupCountEntity : futureInThirtyMin.join()) {
+				workflowNextExecutionGroupCountModels.add(new WorkflowNextExecutionGroupCountModel("In 30 min",
+						workflowNextExecutionGroupCountEntity.getGroup(),
+						workflowNextExecutionGroupCountEntity.getCount()));
+			}
+			for (WorkflowNextExecutionGroupCountEntity workflowNextExecutionGroupCountEntity : futureInOneHour.join()) {
+				workflowNextExecutionGroupCountModels.add(new WorkflowNextExecutionGroupCountModel("In 1 hour",
+						workflowNextExecutionGroupCountEntity.getGroup(),
+						workflowNextExecutionGroupCountEntity.getCount()));
+			}
+			for (WorkflowNextExecutionGroupCountEntity workflowNextExecutionGroupCountEntity : futureInOneDay.join()) {
+				workflowNextExecutionGroupCountModels.add(new WorkflowNextExecutionGroupCountModel("In 1 day",
+						workflowNextExecutionGroupCountEntity.getGroup(),
+						workflowNextExecutionGroupCountEntity.getCount()));
+			}
+			for (WorkflowNextExecutionGroupCountEntity workflowNextExecutionGroupCountEntity : futureGreaterOneDay.join()) {
+				workflowNextExecutionGroupCountModels.add(new WorkflowNextExecutionGroupCountModel("Greater than 1 day",
+						workflowNextExecutionGroupCountEntity.getGroup(),
+						workflowNextExecutionGroupCountEntity.getCount()));
+			}
 		}
 		return workflowNextExecutionGroupCountModels;
 

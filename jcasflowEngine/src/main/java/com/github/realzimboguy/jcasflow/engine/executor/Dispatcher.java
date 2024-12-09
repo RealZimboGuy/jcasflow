@@ -27,6 +27,7 @@ public class Dispatcher {
 	Logger logger = LoggerFactory.getLogger(Dispatcher.class);
 
 	private final WorkflowDao workflowDao;
+	private final WorkflowByTypeDao workflowByTypeDao;
 	private final WorkflowNextExecutionDao workflowNextExecutionDao;
 	private final WorkflowRunningDao workflowRunningDao;
 	private final JCasFlowConfig jCasFlowConfig;
@@ -40,7 +41,7 @@ public class Dispatcher {
 
 	public Dispatcher(WorkflowDao workflowDao, WorkflowNextExecutionDao workflowNextExecutionDao,
 	                  WorkflowRunningDao workflowRunningDao,
-	                  JCasFlowConfig jCasFlowConfig, ExecutorManager executorManager, WorkflowInProgressDao workflowInProgressDao, ExecutorDao executorDao, ApplicationContext context, WorkflowActionDao workflowActionDao) {
+	                  JCasFlowConfig jCasFlowConfig, ExecutorManager executorManager, WorkflowInProgressDao workflowInProgressDao, ExecutorDao executorDao, ApplicationContext context, WorkflowActionDao workflowActionDao, WorkflowByTypeDao workflowByTypeDao) {
 
 		this.workflowDao = workflowDao;
 		this.workflowNextExecutionDao = workflowNextExecutionDao;
@@ -51,6 +52,7 @@ public class Dispatcher {
 		this.executorDao = executorDao;
 		this.context = context;
 		this.workflowActionDao = workflowActionDao;
+		this.workflowByTypeDao = workflowByTypeDao;
 	}
 
 	@PostConstruct
@@ -137,6 +139,7 @@ public class Dispatcher {
 						executorId,
 						workflowNextExecutionEntity.getWorkflowId(),
 						workflowDao,
+						workflowByTypeDao,
 						workflowInProgressDao,
 						workflowNextExecutionDao,
 						workflowRunningDao,

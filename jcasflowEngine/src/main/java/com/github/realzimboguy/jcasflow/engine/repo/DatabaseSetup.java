@@ -52,6 +52,37 @@ public class DatabaseSetup {
 				.withColumn("state_vars", DataTypes.TEXT);
 		CassandraConnectionPool.getSession().execute(createWorkflowTable.build());
 
+		CreateTable createWorkflowCreatedTable = SchemaBuilder.createTable(JCasFlowConfig.getDatabaseKeyspace(), "workflow_created")
+				.ifNotExists()
+				.withPartitionKey("group", DataTypes.TEXT)
+				.withClusteringColumn("created", DataTypes.TIMESTAMP)
+				.withColumn("workflow_id", DataTypes.UUID)
+				.withColumn("workflow_type", DataTypes.TEXT)
+				.withColumn("external_id", DataTypes.TEXT)
+				.withColumn("business_key", DataTypes.TEXT);
+		CassandraConnectionPool.getSession().execute(createWorkflowCreatedTable.build());
+
+		CreateTable createWorkflowByTypeTable = SchemaBuilder.createTable(JCasFlowConfig.getDatabaseKeyspace(), "workflow_by_type")
+				.ifNotExists()
+				.withPartitionKey("group", DataTypes.TEXT)
+				.withPartitionKey("workflow_type", DataTypes.TEXT)
+				.withClusteringColumn("workflow_id", DataTypes.UUID)
+				.withColumn("created", DataTypes.TIMESTAMP)
+				.withColumn("external_id", DataTypes.TEXT)
+				.withColumn("business_key", DataTypes.TEXT)
+				.withColumn("status", DataTypes.TEXT)
+				.withColumn("state", DataTypes.TEXT);
+		CassandraConnectionPool.getSession().execute(createWorkflowByTypeTable.build());
+
+	     //create an index on the state column
+		CreateIndex createIndexState = SchemaBuilder.createIndex("workflow_by_type_state_index")
+				.ifNotExists()
+				.onTable(JCasFlowConfig.getDatabaseKeyspace(), "workflow_by_type")
+				.andColumn("state");
+
+		CassandraConnectionPool.getSession().execute(createIndexState.build());
+
+
 		// Create workflow_actions table
 		CreateTable createWorkflowActionsTable = SchemaBuilder.createTable(JCasFlowConfig.getDatabaseKeyspace(), "workflow_actions")
 				.ifNotExists()
@@ -66,6 +97,7 @@ public class DatabaseSetup {
 				.withColumn("date_time", DataTypes.TIMESTAMP);
 
 		CassandraConnectionPool.getSession().execute(createWorkflowActionsTable.build());
+
 
 		// Create unassigned workflows table
 		//CREATE TABLE workflows (
@@ -105,6 +137,7 @@ public class DatabaseSetup {
 
 		CreateTable createWorkflowDefinitionsTable = SchemaBuilder.createTable(JCasFlowConfig.getDatabaseKeyspace(), "workflow_definitions")
 				.ifNotExists()
+				.withPartitionKey("group", DataTypes.TEXT)
 				.withPartitionKey("name", DataTypes.TEXT)
 				.withColumn("description", DataTypes.TEXT)
 				.withColumn ("created", DataTypes.TIMESTAMP)
