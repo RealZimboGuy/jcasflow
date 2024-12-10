@@ -41,6 +41,7 @@ public class DefinitionController {
 
 		for (WorkflowDefinitionEntity workflowDefinitionEntity : workflowDefinitionEntities) {
 			workflowDefinitionModels.add(new WorkflowDefinitionModel(
+					workflowDefinitionEntity.getGroup(),
 					workflowDefinitionEntity.getName(),
 					workflowDefinitionEntity.getFlowChart(),
 					DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").withZone( ZoneId.systemDefault() ).format(workflowDefinitionEntity.getCreated()),

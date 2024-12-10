@@ -161,6 +161,7 @@ public class WorkflowExecutor implements Runnable {
 
 
 			} catch (NoSuchMethodException e) {
+				logger.error("Exception in workflow: " + workflowId, e);
 				throw new RuntimeException(e);
 			} catch (IllegalAccessException e) {
 				throw new RuntimeException(e);
@@ -196,6 +197,8 @@ public class WorkflowExecutor implements Runnable {
 							java.time.Instant.now()
 					));
 
+					logger.info("Remove in progress record: " + workflowId);
+					workflowInProgressDao.delete(inProgressEntity);
 
 					workflowDao.updateStatus(workflowId, WorkflowStatus.IN_PROGRESS,workflowEntity.getExecutionCount()+1,workflowEntity.getRetryCount() + 1);
 					workflowByTypeDao.update(workflowEntity.getExecutorGroup(),workflowEntity.getWorkflowType(),workflowId,WorkflowStatus.IN_PROGRESS.name(),workflowEntity.getState());

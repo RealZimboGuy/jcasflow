@@ -5,6 +5,8 @@ import com.github.realzimboguy.jcasflow.engine.repo.dao.WorkflowNextExecutionDao
 import com.github.realzimboguy.jcasflow.engine.repo.entity.WorkflowInProgressGroupCountEntity;
 import com.github.realzimboguy.jcasflow.engine.repo.entity.WorkflowNextExecutionGroupCountEntity;
 import com.github.realzimboguy.jcasflow.web.home.model.WorkflowNextExecutionGroupCountModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -14,6 +16,8 @@ import java.util.concurrent.CompletableFuture;
 
 @Service
 public class HomeService {
+
+	Logger logger = LoggerFactory.getLogger(HomeService.class);
 
 	private final WorkflowInProgressDao workflowInProgressDao;
 	private final WorkflowNextExecutionDao workflowNextExecutionDao;
@@ -26,7 +30,11 @@ public class HomeService {
 
 	public List<WorkflowInProgressGroupCountEntity> getWorkflowsInProgress() {
 
-		return workflowInProgressDao.countInProgress();
+		List<WorkflowInProgressGroupCountEntity> workflowInProgressGroupCountEntities = new ArrayList<>();
+		for (String group : workflowNextExecutionDao.getGroups()) {
+			workflowInProgressGroupCountEntities.addAll(workflowInProgressDao.countInProgress(group));
+		}
+		return workflowInProgressGroupCountEntities;
 	}
 
 	public List<WorkflowNextExecutionGroupCountModel> getWorkflowsNextExecution() {
@@ -35,6 +43,7 @@ public class HomeService {
 
 		//calculate instant 5 min in the future
 		Instant now = Instant.now();
+		Instant inOneMin = now.plusSeconds(60);
 		Instant inFiveMin = now.plusSeconds(300);
 		Instant inThirtyMin = now.plusSeconds(1800);
 		Instant inOneHour = now.plusSeconds(3600);
@@ -42,8 +51,11 @@ public class HomeService {
 
 		for (String group : workflowNextExecutionDao.getGroups()) {
 
+			CompletableFuture<List<WorkflowNextExecutionGroupCountEntity>> futureInOneMin = CompletableFuture.supplyAsync(() ->
+					workflowNextExecutionDao.countNextExecution(group,now, inOneMin)
+			);
 			CompletableFuture<List<WorkflowNextExecutionGroupCountEntity>> futureInFiveMin = CompletableFuture.supplyAsync(() ->
-					workflowNextExecutionDao.countNextExecution(group,now, inFiveMin)
+					workflowNextExecutionDao.countNextExecution(group,inOneMin, inFiveMin)
 			);
 			CompletableFuture<List<WorkflowNextExecutionGroupCountEntity>> futureInThirtyMin = CompletableFuture.supplyAsync(() ->
 					workflowNextExecutionDao.countNextExecution(group,inFiveMin, inThirtyMin)
@@ -62,9 +74,14 @@ public class HomeService {
 			);
 
 
-			CompletableFuture.allOf(futureInFiveMin, futureInThirtyMin, futureInOneHour, futureInOneDay, futureGreaterOneDay).join();
+			CompletableFuture.allOf(futureInOneMin,futureInFiveMin, futureInThirtyMin, futureInOneHour, futureInOneDay, futureGreaterOneDay).join();
 
 			//add all the futures to the results
+			for (WorkflowNextExecutionGroupCountEntity workflowNextExecutionGroupCountEntity : futureInOneMin.join()) {
+				workflowNextExecutionGroupCountModels.add(new WorkflowNextExecutionGroupCountModel("In 1 min",
+						workflowNextExecutionGroupCountEntity.getGroup(),
+						workflowNextExecutionGroupCountEntity.getCount()));
+			}
 			for (WorkflowNextExecutionGroupCountEntity workflowNextExecutionGroupCountEntity : futureInFiveMin.join()) {
 				workflowNextExecutionGroupCountModels.add(new WorkflowNextExecutionGroupCountModel("In 5 min",
 						workflowNextExecutionGroupCountEntity.getGroup(),

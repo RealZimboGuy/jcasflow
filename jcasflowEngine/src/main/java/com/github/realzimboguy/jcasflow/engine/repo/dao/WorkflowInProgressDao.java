@@ -71,10 +71,13 @@ public class WorkflowInProgressDao {
 
 	}
 
-	public List<WorkflowInProgressGroupCountEntity> countInProgress() {
+	public List<WorkflowInProgressGroupCountEntity> countInProgress(String group) {
 
 		SimpleStatement statement = new SimpleStatementBuilder(
-				"SELECT group,COUNT(*) as count FROM "+jCasFlowConfig.getDatabaseKeyspace()+".workflow_in_progress group by group")
+				"SELECT group,COUNT(*) as count FROM "+jCasFlowConfig.getDatabaseKeyspace()+".workflow_in_progress WHERE group = ? group by group")
+				.addPositionalValues(
+						group
+				)
 				.setConsistencyLevel(consistencyLevel)
 				.build();
 

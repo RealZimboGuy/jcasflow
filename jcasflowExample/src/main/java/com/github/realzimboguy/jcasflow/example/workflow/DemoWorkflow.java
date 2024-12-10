@@ -114,6 +114,13 @@ public class DemoWorkflow extends JCasWorkFlow {
 
 		executorState.setVar("version", "1.0.0");
 		executorState.setVar("myObject", myObject);
+
+		try {
+			Thread.sleep(40000);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+
 		return Action.nextState(DemoWorkflowStates.process2);
 	}
 	public Action process2(ExecutorState executorState) {
@@ -127,7 +134,7 @@ public class DemoWorkflow extends JCasWorkFlow {
 
 		}
 
-		return Action.nextState(DemoWorkflowStates.process3, Duration.ofSeconds(10));
+		return Action.nextState(DemoWorkflowStates.process3, Duration.ofMinutes(5));
 	}
 	public Action process3(ExecutorState executorState) {
 		logger.info("Processing3 in workflow called");

@@ -49,6 +49,7 @@ public class WorkflowDao {
 				"UPDATE "+jCasFlowConfig.getDatabaseKeyspace()+".workflow SET state = ?, status = ? WHERE bucket = ? and id = ?")
 				.addPositionalValues(
 						method,
+						workflowStatus.name(),
 						DaoUtil.getBucket(workflowId, jCasFlowConfig.getDatabaseBucketSize()),
 						workflowId
 				)
