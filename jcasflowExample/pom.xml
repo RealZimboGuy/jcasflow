@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.github.realzimboguy</groupId>
     <artifactId>jcasflowExample</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1-RELEASE</version>
     <name>jcasflowExample</name>
     <description>jcasflowExample</description>
     <url/>
@@ -38,6 +38,11 @@
         <dependency>
             <groupId>com.github.realzimboguy</groupId>
             <artifactId>jcasflowEngine</artifactId>
+            <version>0.0.2-RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.realzimboguy</groupId>
+            <artifactId>jcasflowWeb</artifactId>
             <version>0.0.1-RELEASE</version>
         </dependency>
         <dependency>

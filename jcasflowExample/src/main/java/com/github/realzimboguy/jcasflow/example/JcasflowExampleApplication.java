@@ -10,7 +10,8 @@ import org.springframework.context.annotation.PropertySource;
 
 @SpringBootApplication(scanBasePackages = {
 		"com.github.realzimboguy.jcasflow.example",
-		"com.github.realzimboguy.jcasflow.engine"
+		"com.github.realzimboguy.jcasflow.engine",
+		"com.github.realzimboguy.jcasflow.web"
 })
 @PropertySource("classpath:application.properties")
 public class JcasflowExampleApplication {

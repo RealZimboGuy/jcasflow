@@ -99,31 +99,31 @@ public List<WorkflowNextExecutionEntity> getWorkflowsForExecution(String group, 
 		return null;
 	}
 
-	public boolean delete(WorkflowNextExecutionEntity workflowNextExecutionEntity) {
+//	public boolean delete(WorkflowNextExecutionEntity workflowNextExecutionEntity) {
+//
+//		SimpleStatement statement = new SimpleStatementBuilder(
+//				"DELETE FROM "+jCasFlowConfig.getDatabaseKeyspace()+".workflow_next_execution WHERE group = ? AND next_execution = ? AND workflow_id = ? IF EXISTS")
+//				.addPositionalValues(
+//						workflowNextExecutionEntity.getGroup(),
+//						workflowNextExecutionEntity.getNextExecution(),
+//						workflowNextExecutionEntity.getWorkflowId()
+//				)
+//				.setConsistencyLevel(dispatcherConsistencyLevel)
+//				.build();
+//
+//		ResultSet rs = CassandraConnectionPool.getSession().execute(statement);
+//		return rs.wasApplied();
+//	}
 
-		SimpleStatement statement = new SimpleStatementBuilder(
-				"DELETE FROM "+jCasFlowConfig.getDatabaseKeyspace()+".workflow_next_execution WHERE group = ? AND next_execution = ? AND workflow_id = ? IF EXISTS")
-				.addPositionalValues(
-						workflowNextExecutionEntity.getGroup(),
-						workflowNextExecutionEntity.getNextExecution(),
-						workflowNextExecutionEntity.getWorkflowId()
-				)
-				.setConsistencyLevel(dispatcherConsistencyLevel)
-				.build();
-
-		ResultSet rs = CassandraConnectionPool.getSession().execute(statement);
-		return rs.wasApplied();
-	}
-
-	public void deleteAll() {
-
-		SimpleStatement statement = new SimpleStatementBuilder(
-				"TRUNCATE "+jCasFlowConfig.getDatabaseKeyspace()+".workflow_next_execution")
-				.setConsistencyLevel(consistencyLevel)
-				.build();
-
-		CassandraConnectionPool.getSession().execute(statement);
-	}
+//	public void deleteAll() {
+//
+//		SimpleStatement statement = new SimpleStatementBuilder(
+//				"TRUNCATE "+jCasFlowConfig.getDatabaseKeyspace()+".workflow_next_execution")
+//				.setConsistencyLevel(consistencyLevel)
+//				.build();
+//
+//		CassandraConnectionPool.getSession().execute(statement);
+//	}
 
 
 	public List<WorkflowNextExecutionGroupCountEntity> countNextExecution(String group, Instant start, Instant end) {

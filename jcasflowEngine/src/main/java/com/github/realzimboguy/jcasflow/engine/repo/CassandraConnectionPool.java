@@ -40,8 +40,8 @@ public class CassandraConnectionPool {
 				.build();
 
 		return CqlSession.builder()
-				.addContactPoint(new InetSocketAddress(jCasFlowConfig.getDatabaseIp(), jCasFlowConfig.getDatabasePort())) // Replace with your IP
-//				.withAuthCredentials("username", "password") // If auth is enabled
+				.addContactPoint(new InetSocketAddress(jCasFlowConfig.getDatabaseIp(), jCasFlowConfig.getDatabasePort()))
+				.withAuthCredentials(jCasFlowConfig.getDatabaseUsername(), jCasFlowConfig.getDatabasePassword())
 //				.withKeyspace(JCasFlowConfig.getDatabaseKeyspace())
 				.withConfigLoader(loader)
 				.build();

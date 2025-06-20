@@ -12,12 +12,16 @@ public class JCasFlowConfig {
 
 	@Value("${app.version}")
 	private String appVersion;
-	@Value("${jcasflow.database.keyspace:casflow}")
+	@Value("${jcasflow.database.keyspace:jcasflow}")
 	private String databaseKeyspace;
 	@Value("${jcasflow.database.ip:localhost}")
 	private String databaseIp;
 	@Value("${jcasflow.database.port:9042}")
 	private int databasePort;
+	@Value("${jcasflow.database.username:admin}")
+	private String databaseUsername;
+	@Value("${jcasflow.database.password:admin}")
+	private String databasePassword;
 	@Value("${jcasflow.database.replicas:1}")
 	private int databaseReplicas;
 	@Value("${jcasflow.database.dc.name:datacenter1}")
@@ -105,6 +109,16 @@ public class JCasFlowConfig {
 	public int getDatabasePort() {
 
 		return databasePort;
+	}
+
+	public String getDatabaseUsername() {
+
+		return databaseUsername;
+	}
+
+	public String getDatabasePassword() {
+
+		return databasePassword;
 	}
 
 	public boolean isExecutorEnabled() {

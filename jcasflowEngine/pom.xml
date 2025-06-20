@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.github.realzimboguy</groupId>
     <artifactId>jcasflowEngine</artifactId>
-    <version>0.0.1-RELEASE</version>
+    <version>0.0.2-RELEASE</version>
     <name>jcasflowEngine</name>
     <description>jcasflowEngine</description>
     <url/>
@@ -76,12 +76,7 @@
             </resource>
         </resources>
 
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-        </plugins>
+
     </build>
 
 
